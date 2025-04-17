@@ -16,8 +16,8 @@ return new class extends Migration {
             $table->string('barcode')->nullable();
             $table->string('brand')->nullable();
             $table->string('location')->nullable();
-            $table->unsignedBigInteger('supplier_id')->nullable();
-            $table->unsignedBigInteger('category_id')->nullable();
+            $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
+            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -27,3 +27,4 @@ return new class extends Migration {
         Schema::dropIfExists('products');
     }
 };
+
