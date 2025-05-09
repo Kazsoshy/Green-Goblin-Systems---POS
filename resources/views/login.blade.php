@@ -130,7 +130,7 @@
 </head>
 <body>
     <!-- Dark mode toggle -->
-    <button class="dark-toggle" onclick="toggleDarkMode()">🌓</button>
+    <button class="dark-toggle" onclick="toggleDarkMode()">🌙</button>
 
     <div class="login-card">
         <img src="{{ asset('./logopartial.jpg') }}" alt="Goblin Icon" class="goblin-logo">

@@ -1,6 +1,6 @@
 @extends('layouts.admindash')
 
-@section('title', 'Product Management')
+@section('title', 'Category Management')
 
 @section('styles')
 <style>
@@ -73,16 +73,17 @@
     }
     
     .btn-danger {
-        background-color: #f44336;
-        border-color: #f44336;
-        color: white;
+        background-color: white;
+        color: var(--gray);
+        border: 1px solid var(--gray);
         border-radius: 0.5rem;
         transition: all 0.3s;
     }
     
     .btn-danger:hover {
-        background-color: #d32f2f;
-        border-color: #d32f2f;
+        background-color: #f8d7da;
+        border-color: #dc3545;
+        color: #dc3545;
     }
     
     .btn-sm {
@@ -111,10 +112,13 @@
         color: white;
         font-weight: 500;
         padding: 1rem;
-        text-align: center;
+        text-align: left;
         vertical-align: middle;
         border: none;
         position: relative;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
     }
     
     .table thead th:not(:last-child)::after {
@@ -129,7 +133,6 @@
     
     .table tbody td {
         padding: 0.8rem 1rem;
-        text-align: center;
         vertical-align: middle;
         border-color: #eaedf2;
         color: #333;
@@ -152,43 +155,9 @@
         padding: 1rem;
     }
     
-    .badge {
-        padding: 0.5em 0.75em;
-        font-weight: 500;
-        border-radius: 0.375rem;
-    }
-    
-    .badge-success {
-        background-color: var(--light-green);
-        color: var(--dark-green);
-    }
-    
-    .badge-warning {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-    
-    .badge-danger {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    
     .action-buttons {
         display: flex;
         gap: 0.5rem;
-        justify-content: center;
-    }
-    
-    .search-input {
-        border-radius: 0.5rem;
-        border: 1px solid #ddd;
-        padding: 0.5rem 1rem;
-        transition: all 0.3s;
-    }
-    
-    .search-input:focus {
-        border-color: var(--light-purple);
-        box-shadow: 0 0 0 0.2rem rgba(94, 53, 177, 0.25);
     }
     
     .pagination {
@@ -224,34 +193,54 @@
         background-color: rgba(149, 117, 205, 0.1);
     }
     
-    .stock-high {
-        color: var(--dark-green);
+    .category-name {
         font-weight: 500;
+        display: flex;
+        align-items: center;
     }
     
-    .stock-medium {
-        color: #856404;
-        font-weight: 500;
+    .category-name svg {
+        color: var(--primary-purple);
+        margin-right: 10px;
     }
     
-    .stock-low {
-        color: #721c24;
-        font-weight: 500;
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--gray);
+    }
+    
+    .empty-state svg {
+        width: 48px;
+        height: 48px;
+        color: var(--light-purple);
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+    
+    /* Animation for alert */
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    
+    .alert-success {
+        animation: fadeOut 5s ease 3s forwards;
     }
 </style>
 @endsection
 
-@section('header', 'Product Management')
+@section('header', 'Category Management')
 
 @section('content')
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Products List</h5>
-        <a href="{{ route('products.create') }}" class="btn btn-primary btn-icon">
+        <h5 class="mb-0">Categories List</h5>
+        <a href="{{ route('category_management.create') }}" class="btn btn-primary btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
             </svg>
-            Add New Product
+            Add New Category
         </a>
     </div>
     
@@ -268,133 +257,82 @@
             </div>
         @endif
 
-        <div class="row mb-4">
-            <div class="col-md-6 mb-3 mb-md-0">
-                <div class="input-group">
-                    <input type="text" class="form-control search-input" placeholder="Search products...">
-                    <button class="btn btn-primary" type="button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="d-flex justify-content-md-end">
-                    <div class="dropdown me-2">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="categoryFilter" data-bs-toggle="dropdown" aria-expanded="false">
-                            Category
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="categoryFilter">
-                            <li><a class="dropdown-item" href="#">All Categories</a></li>
-                            <li><a class="dropdown-item" href="#">Electronics</a></li>
-                            <li><a class="dropdown-item" href="#">Clothing</a></li>
-                            <li><a class="dropdown-item" href="#">Furniture</a></li>
-                        </ul>
-                    </div>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="stockFilter" data-bs-toggle="dropdown" aria-expanded="false">
-                            Stock
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="stockFilter">
-                            <li><a class="dropdown-item" href="#">All</a></li>
-                            <li><a class="dropdown-item" href="#">In Stock</a></li>
-                            <li><a class="dropdown-item" href="#">Low Stock</a></li>
-                            <li><a class="dropdown-item" href="#">Out of Stock</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Stock Qty</th>
-                        <th>Description</th>
-                        <th>Barcode</th>
-                        <th>Supplier</th>
-                        <th>Category</th>
-                        <th>Actions</th>
+                        <th width="70%">Category Name</th>
+                        <th width="30%">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($products as $product)
+                    @forelse ($categories as $category)
                         <tr>
-                            <td class="text-start"><strong>{{ $product->name }}</strong></td>
-                            <td>₱{{ number_format($product->price, 2) }}</td>
                             <td>
-                                @if($product->stock_quantity > 20)
-                                    <span class="stock-high">{{ $product->stock_quantity }}</span>
-                                @elseif($product->stock_quantity > 5)
-                                    <span class="stock-medium">{{ $product->stock_quantity }}</span>
-                                @else
-                                    <span class="stock-low">{{ $product->stock_quantity }}</span>
-                                @endif
-                            </td>
-                            <td class="text-start">{{ Str::limit($product->description, 50) }}</td>
-                            <td>{{ $product->barcode }}</td>
-                            <td>{{ $product->supplier ? $product->supplier->name : 'N/A' }}</td>
-                            <td>
-                                @if($product->category)
-                                    <span class="badge badge-success">{{ $product->category->name }}</span>
-                                @else
-                                    <span class="badge bg-secondary">N/A</span>
-                                @endif
+                                <div class="category-name">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586V2zm3.5 4a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
+                                    </svg>
+                                    {{ $category->name }}
+                                </div>
                             </td>
                             <td>
                                 <div class="action-buttons">
-                                    <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline-primary" title="View">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
-                                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
-                                        </svg>
-                                    </a>
-                                    <a href="{{ route('products.edit', $product) }}" class="btn btn-sm btn-warning" title="Edit">
+                                    <a href="{{ route('category_management.edit', $category->id) }}" class="btn btn-sm btn-warning" title="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                                             <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
                                         </svg>
+                                        <span class="ms-1">Edit</span>
                                     </a>
-                                    <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline-block">
+                                    <form action="{{ route('category_management.destroy', $category->id) }}" method="POST" style="display:inline-block">
                                         @csrf
                                         @method('DELETE')
-                                        <button onclick="return confirm('Are you sure you want to delete this product?')" class="btn btn-sm btn-danger" title="Delete">
+                                        <button onclick="return confirm('Are you sure you want to delete this category?')" class="btn btn-sm btn-danger" title="Delete">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                                                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                                                 <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
                                             </svg>
+                                            <span class="ms-1">Delete</span>
                                         </button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
-                    @if($products->isEmpty())
+                    @empty
                         <tr>
-                            <td colspan="8" class="text-center py-4">
-                                <div class="d-flex flex-column align-items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="var(--gray)" viewBox="0 0 16 16" class="mb-3">
-                                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
-                                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                            <td colspan="2" class="text-center py-4">
+                                <div class="empty-state">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" viewBox="0 0 16 16" class="mb-3">
+                                        <path d="M9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.825a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31L.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3zm-8.322.12C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139z"/>
                                     </svg>
-                                    <p class="text-gray mb-0">No products found.</p>
-                                    <p class="text-muted small">Try adjusting your search or filters.</p>
+                                    <h4>No Categories Found</h4>
+                                    <p class="text-muted">Start by adding a new category using the button above.</p>
                                 </div>
                             </td>
                         </tr>
-                    @endif
+                    @endforelse
                 </tbody>
             </table>
         </div>
         
+        @if(isset($categories) && method_exists($categories, 'links'))
         <div class="d-flex justify-content-center mt-4">
-            {{ $products->links() }}
+            {{ $categories->links() }}
         </div>
-
-        </div>
+        @endif
     </div>
 </div>
+
+@endsection
+
+@section('scripts')
+<script>
+    // Auto-hide alert after 8 seconds
+    setTimeout(function() {
+        const alert = document.querySelector('.alert-success');
+        if (alert) {
+            alert.style.display = 'none';
+        }
+    }, 8000);
+</script>
 @endsection

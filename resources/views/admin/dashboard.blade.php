@@ -431,7 +431,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">
+            <a class="nav-link" href="{{ route('logout') }}">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </li>
@@ -557,7 +557,7 @@
                     </div>
                     <h5 class="card-title">Manage Products</h5>
                     <p class="card-text">Add, edit, or remove products from your inventory.</p>
-                    <a href="#" class="btn btn-primary">
+                    <a href="{{ request()->is('admin/product management') ? 'active' : '' }}" class="{{ route('product management.index') }} btn btn-primary">
                         <i class="fas fa-arrow-right me-2"></i> Go to Products
                     </a>
                 </div>
@@ -571,7 +571,7 @@
                     </div>
                     <h5 class="card-title">Manage Users</h5>
                     <p class="card-text">View, add, edit, or remove system users and permissions.</p>
-                    <a href="#" class="btn btn-success">
+                    <a href="{{ route('user management.index') }}" class="{{ request()->is('admin/user management') ? 'active' : '' }} btn btn-success">
                         <i class="fas fa-arrow-right me-2"></i> Go to Users
                     </a>
                 </div>

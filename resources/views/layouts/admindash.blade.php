@@ -139,6 +139,57 @@
             color: white;
             box-shadow: 0 4px 8px rgba(94, 53, 177, 0.3);
         }
+        .goblin-logo {
+            width: 100px;
+            display: block;
+            margin: 0 auto 10px;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #4B0082;
+            text-align: center;
+            font-size:xx-large;
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Dropdown Styles for Sidebar */
+        .sidebar .dropdown-toggle::after {
+            float: right;
+            margin-top: 8px;
+        }
+
+        .sidebar .nav-link.dropdown-toggle {
+            position: relative;
+        }
+
+        .sidebar .nav-link.dropdown-toggle:hover {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar ul.collapse {
+            padding-left: 0;
+        }
+
+        .sidebar ul.collapse .nav-link {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            margin: 2px 12px 2px 5px;
+        }
+
+        .sidebar ul.collapse .nav-link:hover {
+            transform: translateX(3px);
+        }
+
+        .sidebar ul.collapse .nav-link i {
+            font-size: 0.85rem;
+        }
+
+        /* Add animation for dropdown */
+        .sidebar .collapse {
+            transition: all 0.3s ease;
+        }
     </style>
     @yield('styles')
 </head>
@@ -146,7 +197,7 @@
     <!-- Sidebar Implementation -->
     <div class="sidebar">
         <div class="px-3 mb-4">
-            <h3>GGS-Admin</h3>
+        <img src="{{ asset('./logopartial.jpg') }}" alt="Goblin Icon" class="goblin-logo">
         </div>
         <ul class="nav flex-column">
             <li class="nav-item">
@@ -158,6 +209,42 @@
                 <a class="nav-link {{ request()->is('admin/product management') ? 'active' : '' }}" href="{{ route('product management.index') }}">
                     <i class="fas fa-box"></i> Products
                 </a>
+            </li>
+            <!-- Dropdown for Categories -->
+            <li class="nav-item">
+                <a class="nav-link dropdown-toggle" href="#categoriesSubmenu" data-bs-toggle="collapse" aria-expanded="false">
+                    <i class="fas fa-tags"></i> Categories
+                </a>
+                <ul class="collapse list-unstyled ms-4" id="categoriesSubmenu">
+                    <li>
+                        <a class="nav-link {{ request()->is('admin/categories') ? 'active' : '' }}" href="{{ route('categories.index') }}">
+                            <i class="fas fa-list"></i> View All
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link {{ request()->is('admin/categories/create') ? 'active' : '' }}" href="{{ route('categories.create') }}">
+                            <i class="fas fa-plus"></i> Add New
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <!-- Dropdown for Suppliers -->
+            <li class="nav-item">
+                <a class="nav-link dropdown-toggle" href="#suppliersSubmenu" data-bs-toggle="collapse" aria-expanded="false">
+                    <i class="fas fa-truck"></i> Suppliers
+                </a>
+                <ul class="collapse list-unstyled ms-4" id="suppliersSubmenu">
+                    <li>
+                        <a class="nav-link {{ request()->is('admin/suppliers') ? 'active' : '' }}" href="{{ route('suppliers.index') }}">
+                            <i class="fas fa-list"></i> View All
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link {{ request()->is('admin/suppliers/create') ? 'active' : '' }}" href="{{ route('suppliers.create') }}">
+                            <i class="fas fa-plus"></i> Add New
+                        </a>
+                    </li>
+                </ul>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">
@@ -185,7 +272,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{ route('logout') }}">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </li>
@@ -195,7 +282,7 @@
     <div class="main-content">
         <nav class="navbar navbar-expand-lg navbar-light top-navbar px-4">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">GGS-TD-POS</a>
+                <a class="navbar-brand nav-link {{ request()->is('admin/dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Green Goblin Systems</a>
                 <div class="ms-auto d-flex align-items-center">
                     <div class="dropdown me-3">
                         <button class="btn btn-sm btn-outline notification-btn" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
