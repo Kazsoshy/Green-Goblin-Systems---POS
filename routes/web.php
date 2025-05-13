@@ -6,6 +6,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UserProductController;
+
 
 
 
@@ -67,5 +69,13 @@ Route::middleware(['auth'])->group(function () {
 Route::prefix('admin')->group(function () {
     Route::resource('suppliers', SupplierController::class);
 });
+
+Route::prefix('user')->name('user.')->middleware(['auth'])->group(function () {
+    Route::get('/products', [UserProductController::class, 'index'])->name('products.index');
+    Route::get('/products/{product}', [UserProductController::class, 'show'])->name('products.show');
+});
+
+
+
 
 
