@@ -8,7 +8,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserProductController;
 
-
+Route::redirect('/', '/login');
 
 
 // Auth routes

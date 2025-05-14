@@ -152,12 +152,6 @@
         </div>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('user/dashboard') ? 'active' : '' }}" href="/user/dashboard">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-
-            </li>
-            <li class="nav-item">
                 <a class="nav-link {{ request()->is('user/products*') ? 'active' : '' }}"
                     href="{{ route('user.products.index') }}">
                     <i class="fas fa-box"></i> Products
@@ -166,11 +160,6 @@
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <i class="fas fa-shopping-cart"></i> Orders
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-users"></i> Users
                 </a>
             </li>
             <li class="nav-item">
