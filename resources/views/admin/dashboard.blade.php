@@ -493,9 +493,9 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Sales Analytics</h5>
+                    <h5 class="card-title">Product Stock by Category</h5>
                     <div class="chart-container">
-                        <canvas id="salesChart"></canvas>
+                        <canvas id="stockChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -666,32 +666,20 @@
 
 @section('scripts')
 <script>
-    // Sales Analytics Chart
     document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('salesChart').getContext('2d');
+        const ctx = document.getElementById('stockChart').getContext('2d');
         
-        const salesChart = new Chart(ctx, {
-            type: 'line',
+        const stockChart = new Chart(ctx, {
+            type: 'bar',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                datasets: [
-                    {
-                        label: 'Revenue',
-                        data: [5000, 7800, 6500, 10200, 9500, 12500, 11800, 13500, 12800, 14200, 16500, 17500],
-                        borderColor: '#5E35B1',
-                        backgroundColor: 'rgba(94, 53, 177, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Orders',
-                        data: [80, 120, 105, 160, 145, 180, 175, 195, 187, 210, 240, 250],
-                        borderColor: '#2E7D32',
-                        borderDash: [5, 5],
-                        tension: 0.4,
-                        fill: false
-                    }
-                ]
+                labels: @json($categories),
+                datasets: [{
+                    label: 'Stock Quantity',
+                    data: @json($stockCounts),
+                    backgroundColor: 'rgba(94, 53, 177, 0.6)',
+                    borderColor: '#5E35B1',
+                    borderWidth: 1
+                }]
             },
             options: {
                 responsive: true,
@@ -699,11 +687,19 @@
                 plugins: {
                     legend: {
                         position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Product Stock Levels by Category'
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Stock Quantity'
+                        },
                         grid: {
                             color: 'rgba(0, 0, 0, 0.05)'
                         }

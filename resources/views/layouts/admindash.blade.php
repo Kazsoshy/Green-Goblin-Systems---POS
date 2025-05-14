@@ -246,31 +246,32 @@
                     </li>
                 </ul>
             </li>
-            <li class="nav-item">
+           <!-- <li class="nav-item">
                 <a class="nav-link" href="#">
                     <i class="fas fa-shopping-cart"></i> Orders
                 </a>
-            </li>
+            </li>-->
             <li class="nav-item">
                 <a class="nav-link {{ request()->is('admin/user management') ? 'active' : '' }}" href="{{ route('user management.index') }}">
                     <i class="fas fa-users"></i> Users
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="{{ route('settings.index') }}">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </li>
+            <!--<li class="nav-item">
                 <a class="nav-link" href="#">
                     <i class="fas fa-chart-bar"></i> Reports
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-cog"></i> Settings
-                </a>
-            </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <i class="fas fa-user"></i> Profile
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('logout') }}">
                     <i class="fas fa-sign-out-alt"></i> Logout

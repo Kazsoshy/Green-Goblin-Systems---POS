@@ -7,9 +7,9 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserProductController;
+use App\Http\Controllers\SettingsController;
 
 Route::redirect('/', '/login');
-
 
 // Auth routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -27,7 +27,6 @@ Route::get('/user/dashboard', function () {
     return view('user.dashboard');
 })->middleware('auth');
 
-
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', [UserController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/admin/user management', [UserController::class, 'index'])->name('user management.index');
@@ -36,6 +35,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/user management/{user}/edit', [UserController::class, 'edit'])->name('user management.edit');
     Route::put('/admin/user management/{user}', [UserController::class, 'update'])->name('user management.update');
     Route::delete('/admin/user management/{user}', [UserController::class, 'destroy'])->name('user management.destroy');
+
+    // Settings routes
+    Route::get('/admin/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::put('/admin/settings', [SettingsController::class, 'update'])->name('settings.update');
 
     Route::get('/admin/product management', [ProductController::class, 'index'])->name('product management.index');
     Route::get('/admin/product management/create', [ProductController::class, 'create'])->name('product management.create');
@@ -50,21 +53,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/category_management/{category}/edit', [CategoryController::class, 'edit'])->name('category_management.edit');
     Route::put('/admin/category_management/{category}', [CategoryController::class, 'update'])->name('category_management.update');
     Route::delete('/admin/category_management/{category}', [CategoryController::class, 'destroy'])->name('category_management.destroy');
-
-
 });
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('users', UserController::class);
 });
 
-
 Route::resource('products', ProductController::class);
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('categories', CategoryController::class);
 });
-
 
 Route::prefix('admin')->group(function () {
     Route::resource('suppliers', SupplierController::class);
@@ -73,9 +72,4 @@ Route::prefix('admin')->group(function () {
 Route::prefix('user')->name('user.')->middleware(['auth'])->group(function () {
     Route::get('/products', [UserProductController::class, 'index'])->name('products.index');
     Route::get('/products/{product}', [UserProductController::class, 'show'])->name('products.show');
-});
-
-
-
-
-
+}); 

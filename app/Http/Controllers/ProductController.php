@@ -126,4 +126,10 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
+
+    public function show(Product $product)
+    {
+        $product->load(['category', 'supplier']);
+        return view('admin.product management.show', compact('product'));
+    }
 }

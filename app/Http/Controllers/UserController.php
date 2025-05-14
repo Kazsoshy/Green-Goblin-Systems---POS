@@ -3,38 +3,58 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
-public function index(Request $request)
+    public function index(Request $request)
     {
-    $query = User::query();
+        $query = User::query();
 
-    // Search Filter
-    if ($request->has('search') && $request->search != '') {
-        $search = $request->search;
-        $query->where(function ($q) use ($search) {
-            $q->where('full_name', 'like', '%' . $search . '%')
-              ->orWhere('username', 'like', '%' . $search . '%')
-              ->orWhere('email', 'like', '%' . $search . '%');
-        });
-    }
+        // Search Filter
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('full_name', 'like', '%' . $search . '%')
+                  ->orWhere('username', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
 
-    // Role Filter
-    if ($request->has('role') && $request->role != '') {
-        $query->where('role', $request->role);
-    }
+        // Role Filter
+        if ($request->has('role') && $request->role != '') {
+            $query->where('role', $request->role);
+        }
 
-    $users = $query->paginate(7);
+        $users = $query->paginate(7);
 
-    return view('admin.user management.index', compact('users'));
+        return view('admin.user management.index', compact('users'));
     }
 
     public function dashboard()
     {
-        return view('admin.dashboard');
+        // Get product stock data grouped by category
+        $stocksByCategory = Category::with(['products' => function($query) {
+            $query->select('products.id', 'category_id', 'stock_quantity');
+        }])
+        ->select('id', 'name')
+        ->get()
+        ->map(function($category) {
+            return [
+                'category' => $category->name,
+                'total_stock' => $category->products->sum('stock_quantity')
+            ];
+        });
+
+        // Get categories and their stock counts for the chart
+        $categories = $stocksByCategory->pluck('category');
+        $stockCounts = $stocksByCategory->pluck('total_stock');
+
+        return view('admin.dashboard', compact('categories', 'stockCounts'));
     }
 
     public function create()
