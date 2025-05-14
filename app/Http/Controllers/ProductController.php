@@ -9,12 +9,40 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::all();
-        $products = Product::paginate(7);
-        return view('admin.product management.index', compact('products'));
+    $query = Product::with(['category', 'supplier']);
 
+    // Search Filter
+    if ($request->has('search') && $request->search != '') {
+        $query->where('name', 'like', '%' . $request->search . '%');
+    }
+
+    // Category Filter
+    if ($request->has('category') && $request->category != '') {
+        $query->whereHas('category', function ($q) use ($request) {
+            $q->where('name', $request->category);
+        });
+    }
+
+    // Stock Filter
+    if ($request->has('stock') && $request->stock != '') {
+        switch ($request->stock) {
+            case 'in':
+                $query->where('stock_quantity', '>', 10);
+                break;
+            case 'low':
+                $query->where('stock_quantity', '>', 0)->where('stock_quantity', '<=', 10);
+                break;
+            case 'out':
+                $query->where('stock_quantity', '=', 0);
+                break;
+        }
+    }
+
+    $products = $query->paginate(7);
+    $categories = Category::all(); // fetch for dropdown
+    return view('admin.product management.index', compact('products', 'categories'));
     }
 
     public function create()

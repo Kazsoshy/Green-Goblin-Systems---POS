@@ -32,6 +32,34 @@
         <a href="{{ route('users.create') }}" class="btn btn-primary">+ Add New User</a>
     </div>
 
+    <form method="GET" action="{{ route('users.index') }}" id="filterForm">
+    <div class="row mb-3">
+        <div class="col-md-6 mb-2">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control"
+                       placeholder="Search name, username, or email..."
+                       value="{{ request('search') }}">
+                <button class="btn btn-primary" type="submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                         viewBox="0 0 16 16">
+                        <path
+                            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+            <div class="col-md-6 mb-2">
+                <select class="form-select" name="role" onchange="document.getElementById('filterForm').submit();">
+                    <option value="">All Roles</option>
+                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>User</option>
+                </select>
+            </div>
+        </div>
+    </form>
+
+
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
@@ -86,6 +114,10 @@
                 @endif
             </tbody>
         </table>
+        <p class="text-muted mb-3">
+            Showing {{ $users->total() }} {{ Str::plural('user', $users->total()) }}
+        </p>
+
     </div>
 </div>
 @endsection

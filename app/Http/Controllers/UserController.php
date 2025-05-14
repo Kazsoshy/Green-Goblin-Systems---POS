@@ -8,10 +8,28 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+public function index(Request $request)
     {
-        $users = User::all();
-        return view('admin.user management.index', compact('users'));
+    $query = User::query();
+
+    // Search Filter
+    if ($request->has('search') && $request->search != '') {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('full_name', 'like', '%' . $search . '%')
+              ->orWhere('username', 'like', '%' . $search . '%')
+              ->orWhere('email', 'like', '%' . $search . '%');
+        });
+    }
+
+    // Role Filter
+    if ($request->has('role') && $request->role != '') {
+        $query->where('role', $request->role);
+    }
+
+    $users = $query->paginate(7);
+
+    return view('admin.user management.index', compact('users'));
     }
 
     public function dashboard()

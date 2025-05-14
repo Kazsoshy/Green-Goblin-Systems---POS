@@ -268,44 +268,43 @@
             </div>
         @endif
 
-        <div class="row mb-4">
-            <div class="col-md-6 mb-3 mb-md-0">
-                <div class="input-group">
-                    <input type="text" class="form-control search-input" placeholder="Search products...">
-                    <button class="btn btn-primary" type="button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="d-flex justify-content-md-end">
-                    <div class="dropdown me-2">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="categoryFilter" data-bs-toggle="dropdown" aria-expanded="false">
-                            Category
+        <form method="GET" action="{{ route('products.index') }}" id="filterForm">
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control search-input"
+                            placeholder="Search products..." value="{{ request('search') }}">
+                        <button class="btn btn-primary" type="submit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                            </svg>
                         </button>
-                        <ul class="dropdown-menu" aria-labelledby="categoryFilter">
-                            <li><a class="dropdown-item" href="#">All Categories</a></li>
-                            <li><a class="dropdown-item" href="#">Electronics</a></li>
-                            <li><a class="dropdown-item" href="#">Clothing</a></li>
-                            <li><a class="dropdown-item" href="#">Furniture</a></li>
-                        </ul>
                     </div>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="stockFilter" data-bs-toggle="dropdown" aria-expanded="false">
-                            Stock
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="stockFilter">
-                            <li><a class="dropdown-item" href="#">All</a></li>
-                            <li><a class="dropdown-item" href="#">In Stock</a></li>
-                            <li><a class="dropdown-item" href="#">Low Stock</a></li>
-                            <li><a class="dropdown-item" href="#">Out of Stock</a></li>
-                        </ul>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-md-end">
+                        <select class="form-select me-2" name="category" onchange="document.getElementById('filterForm').submit();">
+                            <option value="">All Categories</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->name }}" {{ request('category') == $category->name ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <select class="form-select" name="stock" onchange="document.getElementById('filterForm').submit();">
+                            <option value="">All Stock</option>
+                            <option value="in" {{ request('stock') == 'in' ? 'selected' : '' }}>In Stock</option>
+                            <option value="low" {{ request('stock') == 'low' ? 'selected' : '' }}>Low Stock</option>
+                            <option value="out" {{ request('stock') == 'out' ? 'selected' : '' }}>Out of Stock</option>
+                        </select>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
+
 
         <div class="table-responsive">
             <table class="table table-hover align-middle">
@@ -391,7 +390,7 @@
         </div>
         
         <div class="d-flex justify-content-center mt-4">
-            {{ $products->links() }}
+            {{ $products->appends(request()->except('page'))->links() }}
         </div>
 
         </div>
