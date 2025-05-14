@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>@yield('title', '')</title>
+    <title>@yield('title', 'Products')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -140,6 +140,20 @@
         color: white;
         box-shadow: 0 4px 8px rgba(94, 53, 177, 0.3);
     }
+
+    .goblin-logo {
+        width: 100px;
+        display: block;
+        margin: 0 auto 10px;
+        filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+    }
+    .navbar-brand {
+        font-weight: bold;
+        color: #4B0082;
+        text-align: center;
+        font-size:xx-large;
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
     </style>
     @yield('styles')
 </head>
@@ -148,7 +162,7 @@
     <!-- Sidebar Implementation -->
     <div class="sidebar">
         <div class="px-3 mb-4">
-            <h3>GGS-User</h3>
+        <img src="{{ asset('./logopartial.jpg') }}" alt="Goblin Icon" class="goblin-logo">
         </div>
         <ul class="nav flex-column">
             <li class="nav-item">
@@ -188,7 +202,7 @@
     <div class="main-content">
         <nav class="navbar navbar-expand-lg navbar-light top-navbar px-4">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">GGS-TD-POS</a>
+                <a class="navbar-brand nav-link" href="#">Green Goblin Systems</a>
                 <div class="ms-auto d-flex align-items-center">
                     <div class="dropdown me-3">
                         <button class="btn btn-sm btn-outline notification-btn" type="button" id="notificationsDropdown"

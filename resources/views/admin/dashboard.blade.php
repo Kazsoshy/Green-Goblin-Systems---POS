@@ -557,7 +557,7 @@
                     </div>
                     <h5 class="card-title">Manage Products</h5>
                     <p class="card-text">Add, edit, or remove products from your inventory.</p>
-                    <a href="{{ request()->is('admin/product management') ? 'active' : '' }}" class="{{ route('product management.index') }} btn btn-primary">
+                    <a href="{{ route('product management.index') }}" class="{{ request()->is('admin/product management') ? 'active' : '' }} btn btn-primary">
                         <i class="fas fa-arrow-right me-2"></i> Go to Products
                     </a>
                 </div>
