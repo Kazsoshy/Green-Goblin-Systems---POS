@@ -19,7 +19,7 @@
             <h2 class="h4 text-muted mb-3">{{ $product->brand }}</h2>
             
             <div class="d-flex align-items-center mb-3">
-                <span class="h3 text-primary me-3">${{ number_format($product->price, 2) }}</span>
+                <span class="h3 text-primary me-3">₱{{ number_format($product->price, 2) }}</span>
                 <span class="badge bg-{{ $product->stock_quantity > 0 ? 'success' : 'danger' }}">
                     {{ $product->stock_quantity }} available
                 </span>
@@ -55,9 +55,13 @@
             
             <div class="d-flex gap-2">
                 @if($product->stock_quantity > 0)
-                <button class="btn btn-primary btn-lg">
-                    <i class="fas fa-cart-plus me-2"></i> Add to Cart
-                </button>
+                <form action="{{ route('cart.add', $product) }}" method="POST" class="d-inline">
+                    @csrf
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-cart-plus me-2"></i> Add to Cart
+                    </button>
+                </form>
                 @endif
                 <a href="{{ route('user.products.index') }}" class="btn btn-outline-secondary btn-lg">
                     Back to Products

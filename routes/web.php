@@ -8,6 +8,8 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserProductController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\SalesController;
 
 Route::redirect('/', '/login');
 
@@ -72,4 +74,18 @@ Route::prefix('admin')->group(function () {
 Route::prefix('user')->name('user.')->middleware(['auth'])->group(function () {
     Route::get('/products', [UserProductController::class, 'index'])->name('products.index');
     Route::get('/products/{product}', [UserProductController::class, 'show'])->name('products.show');
+    
+    // Sales Routes
+    Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
+    Route::get('/sales/{sale}', [SalesController::class, 'show'])->name('sales.show');
+});
+
+// Cart Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/update/{product}', [CartController::class, 'update'])->name('cart.update');
+    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::post('/checkout', [SalesController::class, 'store'])->name('checkout.store');
 }); 

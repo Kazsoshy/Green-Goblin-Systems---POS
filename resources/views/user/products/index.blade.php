@@ -83,7 +83,7 @@
                         <span class="text-muted">{{ $product->brand }}</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="h5 text-primary">${{ number_format($product->price, 2) }}</span>
+                        <span class="h5 text-primary">₱{{ number_format($product->price, 2) }}</span>
                         <span class="badge bg-{{ $product->stock_quantity > 0 ? 'success' : 'danger' }}">
                             {{ $product->stock_quantity }} in stock
                         </span>
@@ -92,9 +92,16 @@
                 
                 <div class="card-footer bg-white">
                     <a href="{{ route('user.products.show', $product) }}" 
-                       class="btn btn-sm btn-outline-primary w-100">
+                       class="btn btn-sm btn-outline-primary w-100 mb-2">
                         View Details
                     </a>
+                    <form action="{{ route('cart.add', $product) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-sm btn-primary w-100">
+                            <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

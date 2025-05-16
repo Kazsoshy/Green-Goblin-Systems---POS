@@ -3,6 +3,8 @@
 
 <head>
     <title>@yield('title', 'Products')</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -172,15 +174,15 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-shopping-cart"></i> Orders
+                <a class="nav-link {{ request()->is('cart*') ? 'active' : '' }}" href="{{ route('cart.index') }}">
+                    <i class="fas fa-shopping-cart"></i> Cart
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-chart-bar"></i> Reports
+                <a class="nav-link" href="{{ route('user.sales.index') }}">
+                    <i class="fas fa-chart-bar"></i> Sales History
                 </a>
-            </li>
+            <!--</li>
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <i class="fas fa-cog"></i> Settings
@@ -190,7 +192,7 @@
                 <a class="nav-link" href="#">
                     <i class="fas fa-user"></i> Profile
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a class="nav-link" href="#">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -225,6 +227,21 @@
 
         <div class="container-fluid mt-4 px-4">
             <h2 class="page-header mb-4">@yield('header')</h2>
+            
+            @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            @endif
+
+            @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            @endif
+
             @yield('content')
         </div>
     </div>

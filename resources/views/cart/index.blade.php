@@ -100,10 +100,46 @@
                             <span class="h4">₱{{ number_format($total, 2) }}</span>
                         </div>
 
-                        <select class="form-select mb-3" id="paymentMethod">
-                            <option value="cash">Cash Payment</option>
-                            <option value="card">Card Payment</option>
-                        </select>
+                        <div class="customer-details mb-4">
+                            <h5 class="mb-3">Customer Details</h5>
+                            <div class="mb-3">
+                                <label for="purchaseType" class="form-label">Purchase Type</label>
+                                <select class="form-select" id="purchaseType" onchange="toggleDeliveryFields()">
+                                    <option value="walk-in">Walk-in Purchase</option>
+                                    <option value="delivery">Delivery</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label">Customer Name</label>
+                                <input type="text" class="form-control" id="customerName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerPhone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="customerPhone">
+                            </div>
+                            <div class="mb-3">
+                                <label for="customerEmail" class="form-label">Email (Optional)</label>
+                                <input type="email" class="form-control" id="customerEmail">
+                            </div>
+                            <div id="deliveryFields" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="customerAddress" class="form-label">Delivery Address</label>
+                                    <textarea class="form-control" id="customerAddress" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Additional Notes</label>
+                                <textarea class="form-control" id="notes" rows="2" placeholder="Special instructions or notes"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="payment-details">
+                            <h5 class="mb-3">Payment Details</h5>
+                            <select class="form-select mb-3" id="paymentMethod">
+                                <option value="cash">Cash Payment</option>
+                                <option value="card">Card Payment</option>
+                            </select>
+                        </div>
 
                         <button class="btn btn-checkout w-100" onclick="checkout()">
                             <i class="fas fa-shopping-cart me-2"></i>Proceed to Checkout
@@ -157,23 +193,21 @@ function updateQuantity(productId, delta, newValue = null) {
 
     if (quantity < 1) return;
 
-    fetch(`/cart/update`, {
+    $.ajax({
+        url: `/cart/update/${productId}`,
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
-        body: JSON.stringify({
-            product_id: productId,
-            quantity: quantity
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.message);
+        data: { quantity: quantity },
+        success: function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        },
+        error: function(xhr) {
+            const response = xhr.responseJSON;
+            alert(response?.message || 'Error updating cart');
         }
     });
 }
@@ -181,20 +215,19 @@ function updateQuantity(productId, delta, newValue = null) {
 function removeItem(productId) {
     if (!confirm('Are you sure you want to remove this item?')) return;
 
-    fetch(`/cart/remove`, {
+    $.ajax({
+        url: `/cart/remove/${productId}`,
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
-        body: JSON.stringify({
-            product_id: productId
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
+        success: function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        },
+        error: function() {
+            alert('Error removing item from cart');
         }
     });
 }
@@ -202,48 +235,86 @@ function removeItem(productId) {
 function clearCart() {
     if (!confirm('Are you sure you want to clear your cart?')) return;
 
-    fetch(`/cart/clear`, {
+    $.ajax({
+        url: '/cart/clear',
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.success) {
+                location.reload();
+            }
+        },
+        error: function() {
+            alert('Error clearing cart');
         }
     });
 }
 
+function toggleDeliveryFields() {
+    const purchaseType = document.getElementById('purchaseType').value;
+    const deliveryFields = document.getElementById('deliveryFields');
+    const addressField = document.getElementById('customerAddress');
+    
+    if (purchaseType === 'delivery') {
+        deliveryFields.style.display = 'block';
+        addressField.required = true;
+    } else {
+        deliveryFields.style.display = 'none';
+        addressField.required = false;
+    }
+}
+
 function checkout() {
+    const purchaseType = document.getElementById('purchaseType').value;
+    const customerName = document.getElementById('customerName').value;
+    
+    if (!customerName) {
+        alert('Please enter customer name');
+        return;
+    }
+
+    if (purchaseType === 'delivery') {
+        const address = document.getElementById('customerAddress').value;
+        if (!address) {
+            alert('Please enter delivery address');
+            return;
+        }
+    }
+
+    const customerData = {
+        name: customerName,
+        phone: document.getElementById('customerPhone').value,
+        email: document.getElementById('customerEmail').value,
+        address: document.getElementById('customerAddress').value,
+        notes: document.getElementById('notes').value
+    };
+
     const paymentMethod = document.getElementById('paymentMethod').value;
     
-    // Format cart items for the sales controller
-    const items = @json($items).map(item => ({
-        product_id: item.id,
-        quantity: item.quantity,
-        discount: 0
-    }));
-
     $.ajax({
-        url: '/sales',
+        url: '{{ route("checkout.store") }}',
         method: 'POST',
-        data: JSON.stringify({
-            items: items,
-            payment_method: paymentMethod
-        }),
-        contentType: 'application/json',
-        success: function(data) {
-            if (data.success) {
-                window.location.href = data.redirect_url;
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+            payment_method: paymentMethod,
+            purchase_type: purchaseType,
+            customer_details: customerData
+        },
+        success: function(response) {
+            if (response.success) {
+                showToast('Order placed successfully!');
+                setTimeout(() => {
+                    window.location.href = response.redirect_url;
+                }, 1500);
             } else {
-                alert(data.message || 'Error processing checkout');
+                alert(response.message || 'Error processing checkout');
             }
         },
         error: function(xhr) {
-            console.error('Error:', xhr);
             const response = xhr.responseJSON;
             alert('Error: ' + (response?.message || 'Could not process checkout'));
         }

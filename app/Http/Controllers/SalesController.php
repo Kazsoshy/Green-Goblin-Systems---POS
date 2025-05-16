@@ -9,16 +9,35 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Session;
 
 class SalesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $sales = Sale::with(['items', 'payments'])
-            ->latest()
-            ->paginate(10);
-            
-        return view('cashier.sales.index', compact('sales'));
+        $query = Sale::with(['items', 'payments'])
+            ->where('user_id', auth()->id())
+            ->latest();
+
+        // Apply filters
+        if ($request->filled('search')) {
+            $query->where('receipt_number', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('purchase_type')) {
+            $query->where('purchase_type', $request->purchase_type);
+        }
+
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        $sales = $query->paginate(10);
+        return view('user.sales.index', compact('sales'));
     }
 
     public function create()
@@ -31,74 +50,90 @@ class SalesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-            'payment_method' => 'required|in:cash,card'
+            'payment_method' => 'required|in:cash,card',
+            'purchase_type' => 'required|in:walk-in,delivery',
+            'customer_details' => 'required|array',
+            'customer_details.name' => 'required|string',
+            'customer_details.phone' => 'nullable|string',
+            'customer_details.email' => 'nullable|email',
+            'customer_details.address' => $request->input('purchase_type') === 'delivery' ? 'required|string' : 'nullable|string',
+            'customer_details.notes' => 'nullable|string'
         ]);
 
         try {
             DB::beginTransaction();
 
-            // Create sale
-            $sale = Sale::create([
-                'user_id' => auth()->id(),
-                'total_amount' => 0, // Will be calculated
-                'sale_date' => now(),
-                'payment_method' => $request->payment_method,
-                'receipt_number' => 'RCP-' . strtoupper(Str::random(10)),
-                'status' => 'completed'
-            ]);
+            $cart = Session::get('cart', []);
+            if (empty($cart)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cart is empty'
+                ], 400);
+            }
 
-            $totalAmount = 0;
+            $total = 0;
+            $items = [];
 
-            // Process each item
-            foreach ($request->items as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                
-                // Validate stock
-                if ($product->stock_quantity < $item['quantity']) {
+            // Validate stock and calculate total
+            foreach ($cart as $productId => $details) {
+                $product = Product::find($productId);
+                if (!$product) {
+                    throw new \Exception("Product not found");
+                }
+
+                if ($product->stock_quantity < $details['quantity']) {
                     throw new \Exception("Insufficient stock for {$product->name}");
                 }
 
-                // Create sale item
-                $saleItem = SaleItem::create([
+                $subtotal = $product->price * $details['quantity'];
+                $total += $subtotal;
+
+                $items[] = [
+                    'product' => $product,
+                    'quantity' => $details['quantity'],
+                    'subtotal' => $subtotal
+                ];
+            }
+
+            // Create sale with customer details
+            $sale = Sale::create([
+                'user_id' => auth()->id(),
+                'total_amount' => $total,
+                'payment_method' => $request->payment_method,
+                'purchase_type' => $request->purchase_type,
+                'status' => 'completed',
+                'receipt_number' => 'RCP-' . strtoupper(Str::random(10)),
+                'customer_name' => $request->customer_details['name'],
+                'customer_phone' => $request->customer_details['phone'],
+                'customer_email' => $request->customer_details['email'],
+                'customer_address' => $request->customer_details['address'],
+                'notes' => $request->customer_details['notes']
+            ]);
+
+            // Create sale items and update stock
+            foreach ($items as $item) {
+                SaleItem::create([
                     'sale_id' => $sale->id,
-                    'product_id' => $product->id,
+                    'product_id' => $item['product']->id,
                     'quantity' => $item['quantity'],
-                    'unit_price' => $product->price,
-                    'discount' => $item['discount'] ?? 0
+                    'unit_price' => $item['product']->price,
+                    'subtotal' => $item['subtotal'],
+                    'discount' => 0
                 ]);
 
                 // Update stock
-                $product->decrement('stock_quantity', $item['quantity']);
-
-                // Add to total
-                $totalAmount += ($product->price * $item['quantity']) - ($item['discount'] ?? 0);
+                $item['product']->decrement('stock_quantity', $item['quantity']);
             }
 
-            // Update sale total
-            $sale->update(['total_amount' => $totalAmount]);
-
-            // Create payment record
-            Payment::create([
-                'sale_id' => $sale->id,
-                'amount' => $totalAmount,
-                'status' => 'completed',
-                'payment_date' => now(),
-                'reference_number' => 'PAY-' . strtoupper(Str::random(10))
-            ]);
+            // Clear cart
+            Session::forget('cart');
 
             DB::commit();
 
-            // Clear the cart after successful purchase
-            session()->forget('cart');
-
             return response()->json([
                 'success' => true,
-                'sale_id' => $sale->id,
-                'message' => 'Sale completed successfully',
-                'redirect_url' => route('sales.success', $sale->id)
+                'message' => 'Order placed successfully',
+                'redirect_url' => route('user.products.index')
             ]);
 
         } catch (\Exception $e) {
@@ -106,14 +141,18 @@ class SalesController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
-            ], 422);
+            ], 400);
         }
     }
 
     public function show(Sale $sale)
     {
+        if ($sale->user_id !== auth()->id()) {
+            abort(403);
+        }
+        
         $sale->load(['items.product', 'payments', 'refunds']);
-        return view('cashier.sales.show', compact('sale'));
+        return view('user.sales.show', compact('sale'));
     }
 
     public function success(Sale $sale)

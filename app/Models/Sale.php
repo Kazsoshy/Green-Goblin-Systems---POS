@@ -3,16 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Sale extends Model
 {
     protected $fillable = [
         'user_id',
         'total_amount',
-        'sale_date',
         'payment_method',
+        'status',
         'receipt_number',
-        'status'
+        'purchase_type',
+        'customer_name',
+        'customer_phone',
+        'customer_email',
+        'customer_address',
+        'notes'
     ];
 
     protected $casts = [
@@ -20,14 +27,14 @@ class Sale extends Model
         'total_amount' => 'decimal:2'
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(SaleItem::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function payments()
