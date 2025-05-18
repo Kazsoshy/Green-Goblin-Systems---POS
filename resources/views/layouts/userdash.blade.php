@@ -178,10 +178,16 @@
                     <i class="fas fa-shopping-cart"></i> Cart
                 </a>
             </li>
+                        <li class="nav-item">
+                <a class="nav-link {{ request()->is('services*') ? 'active' : '' }}" href="{{ route('services.index') }}">
+                    <i class="fas fa-briefcase"></i> Services
+                </a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('user.sales.index') }}">
                     <i class="fas fa-chart-bar"></i> Sales History
                 </a>
+            </li>
             <!--</li>
             <li class="nav-item">
                 <a class="nav-link" href="#">

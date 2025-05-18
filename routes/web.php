@@ -10,6 +10,7 @@ use App\Http\Controllers\UserProductController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\ServiceControllerController;
 
 Route::redirect('/', '/login');
 
@@ -89,3 +90,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
     Route::post('/checkout', [SalesController::class, 'store'])->name('checkout.store');
 }); 
+
+use App\Http\Controllers\ServiceController;  // <---- Add this line
+
+Route::get('/user/services', [ServiceController::class, 'index'])->name('services.index');
+Route::post('/user/services', [ServiceController::class, 'store'])->name('services.store');

@@ -164,9 +164,9 @@
             <button type="submit" class="btn btn-primary w-100">Login</button>
         </form>
 
-        <div class="mt-4 text-center">
+       <!-- <div class="mt-4 text-center">
             Don't have an account? <a href="{{ route('register') }}">Register here</a>
-        </div> 
+        </div> -->
     </div>
 
     <script>
