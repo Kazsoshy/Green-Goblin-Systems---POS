@@ -42,7 +42,7 @@
         </div>
     @endif
 
-    <form action="{{ route('product management.update', $product->id) }}" method="POST">
+    <form action="{{ route('product management.update', $product->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         
@@ -125,6 +125,17 @@
                     </select>
                 </div>
             </div>
+        </div>
+
+        <div class="form-group">
+            <label for="image" class="form-label">Product Image</label>
+            @if($product->image)
+                <div class="mb-2">
+                    <img src="{{ asset('storage/' . $product->image) }}" alt="Current product image" class="img-thumbnail" style="max-height: 200px;">
+                </div>
+            @endif
+            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+            <small class="form-text text-muted">Leave empty to keep the current image. Upload a new image to replace it.</small>
         </div>
 
         <div class="form-group">

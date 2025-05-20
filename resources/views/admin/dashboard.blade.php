@@ -431,9 +431,12 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{{ route('logout') }}">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+            <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                @csrf
+                <button type="submit" class="nav-link btn btn-link" style="padding:0; border:none; background:none;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
         </li>
     </ul>
 </div>

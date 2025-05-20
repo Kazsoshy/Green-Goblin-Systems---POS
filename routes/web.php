@@ -11,7 +11,11 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\ServiceControllerController;
+use App\Http\Controllers\POSController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\SettingController;
 
+// Redirect root to login
 Route::redirect('/', '/login');
 
 // Auth routes
@@ -19,7 +23,7 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Dashboards
 Route::get('/admin/dashboard', function () {
@@ -72,26 +76,18 @@ Route::prefix('admin')->group(function () {
     Route::resource('suppliers', SupplierController::class);
 });
 
-Route::prefix('user')->name('user.')->middleware(['auth'])->group(function () {
-    Route::get('/products', [UserProductController::class, 'index'])->name('products.index');
-    Route::get('/products/{product}', [UserProductController::class, 'show'])->name('products.show');
-    
-    // Sales Routes
-    Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
-    Route::get('/sales/{sale}', [SalesController::class, 'show'])->name('sales.show');
+// POS routes (move these up for clarity)
+Route::middleware(['auth'])->group(function () {
+    // Make POS the default route after login for non-admin users
+    Route::redirect('/user/dashboard', '/pos');
+    Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
 });
 
-// Cart Routes
-Route::middleware(['auth'])->group(function () {
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
-    Route::post('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('/cart/update/{product}', [CartController::class, 'update'])->name('cart.update');
-    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-    Route::post('/checkout', [SalesController::class, 'store'])->name('checkout.store');
-}); 
-
-use App\Http\Controllers\ServiceController;  // <---- Add this line
+// API routes for POS
+Route::prefix('api')->middleware(['auth'])->group(function () {
+    Route::get('/products/{id}', [POSController::class, 'getProduct']);
+    Route::post('/orders', [POSController::class, 'createOrder']);
+});
 
 Route::get('/user/services', [ServiceController::class, 'index'])->name('services.index');
 Route::post('/user/services', [ServiceController::class, 'store'])->name('services.store');

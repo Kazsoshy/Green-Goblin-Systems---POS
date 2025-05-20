@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -58,27 +59,25 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'description' => 'required',  // Add this
+            'description' => 'required',
             'price' => 'required|numeric',
             'stock_quantity' => 'required|integer',
             'location' => 'required|string',
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'brand' => 'nullable',  // (making it nullable since it's not required in your form)
-            'barcode' => 'nullable', 
+            'brand' => 'nullable',
+            'barcode' => 'nullable',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
     
-        Product::create([
-            'name' => $request->name,
-            'description' => $request->description,  
-            'price' => $request->price,
-            'stock_quantity' => $request->stock_quantity,
-            'location' => $request->location,
-            'category_id' => $request->category_id,
-            'supplier_id' => $request->supplier_id,
-            'brand' => $request->brand,  
-            'barcode' => $request->barcode,  
-        ]);
+        $data = $request->all();
+        
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('products', 'public');
+            $data['image'] = $imagePath;
+        }
+    
+        Product::create($data);
     
         return redirect()->route('products.index')->with('success', 'Product added successfully.');
     }
@@ -95,27 +94,30 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'description' => 'required', 
+            'description' => 'required',
             'price' => 'required|numeric',
             'stock_quantity' => 'required|integer',
             'location' => 'required|string',
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'brand' => 'nullable',  
-            'barcode' => 'nullable', 
+            'brand' => 'nullable',
+            'barcode' => 'nullable',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
     
-        $product->update([
-            'name' => $request->name,
-            'description' => $request->description,  
-            'price' => $request->price,
-            'stock_quantity' => $request->stock_quantity,
-            'location' => $request->location,
-            'category_id' => $request->category_id,
-            'supplier_id' => $request->supplier_id,
-            'brand' => $request->brand,  
-            'barcode' => $request->barcode,  
-        ]);
+        $data = $request->all();
+        
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            
+            $imagePath = $request->file('image')->store('products', 'public');
+            $data['image'] = $imagePath;
+        }
+    
+        $product->update($data);
     
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }

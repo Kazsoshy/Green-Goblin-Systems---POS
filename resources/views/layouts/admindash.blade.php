@@ -273,9 +273,12 @@
                 </a>
             </li> -->
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('logout') }}">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+                <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-logout">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
+                </form>
             </li>
         </ul>
     </div>
@@ -296,9 +299,12 @@
                             <li><a class="dropdown-item" href="#">Payment confirmed</a></li>
                         </ul>
                     </div>
-                    <a class="btn btn-logout" href="{{ route('logout') }}">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </a>
+                    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                        @csrf
+                        <button type="submit" class="btn btn-logout">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </button>
+                    </form>
                 </div>
             </div>
         </nav>

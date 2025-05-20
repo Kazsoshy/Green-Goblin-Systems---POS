@@ -45,21 +45,25 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
 
         if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $user->last_login = Carbon::now();
-            $user->save();
-
-            if ($user->role === 'admin') {
-                return redirect('/admin/dashboard');
+            $request->session()->regenerate();
+            
+            // Check user role and redirect accordingly
+            if (auth()->user()->role === 'admin') {
+                return redirect()->route('admin.dashboard');
             } else {
-                return redirect('/user/products');
+                return redirect()->route('pos.index'); // Redirect regular users to POS
             }
         }
 
-        return redirect()->back()->with('error', 'Invalid credentials');
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ]);
     }
 
     public function logout()
