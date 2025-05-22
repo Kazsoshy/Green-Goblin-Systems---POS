@@ -30,7 +30,7 @@ class SupplierController extends Controller
         ]);
 
         Supplier::create($request->all());
-        return redirect()->route('suppliers.index')->with('success', 'Supplier created successfully.');
+        return redirect()->route('supplier_management.index')->with('success', 'Supplier created successfully.');
     }
 
     public function edit(Supplier $supplier)
@@ -49,12 +49,12 @@ class SupplierController extends Controller
         ]);
 
         $supplier->update($request->all());
-        return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully.');
+        return redirect()->route('supplier_management.index')->with('success', 'Supplier updated successfully.');
     }
 
     public function destroy(Supplier $supplier)
     {
         $supplier->delete();
-        return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully.');
+        return redirect()->route('supplier_management.index')->with('success', 'Supplier deleted successfully.');
     }
 }

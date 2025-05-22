@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,8 @@ class POSController extends Controller
     public function index()
     {
         $products = Product::with('category')->get();
-        return view('pos.index', compact('products'));
+        $services = Service::all();
+        return view('pos.index', compact('products', 'services'));
     }
 
     public function checkout()
@@ -35,6 +37,17 @@ class POSController extends Controller
             'price' => $product->price,
             'stock' => $product->stock_quantity,
             'category' => $product->category ? $product->category->name : null
+        ]);
+    }
+
+    public function getService($id)
+    {
+        $service = Service::findOrFail($id);
+        return response()->json([
+            'id' => $service->service_id,
+            'name' => $service->service_type,
+            'price' => $service->price,
+            'type' => 'service'
         ]);
     }
 

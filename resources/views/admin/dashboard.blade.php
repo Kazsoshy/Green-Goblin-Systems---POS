@@ -236,19 +236,29 @@
         color: white;
     }
     
-    .btn-logout {
-        background-color: var(--primary-purple);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-logout:hover {
-        background-color: var(--dark-purple);
-        color: white;
-        box-shadow: 0 4px 8px rgba(94, 53, 177, 0.3);
-    }
+        /* Logout Button Container */
+        .logout-container {
+            padding: 20px;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-logout {
+            background-color: var(--danger-red);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: left;
+            border: none;
+        }
+        
+        .btn-logout:hover {
+            background-color: var(--danger-dark);
+            color: white;
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
     
     .notification-btn {
         background-color: transparent;
@@ -430,14 +440,14 @@
                 <i class="fas fa-user"></i> Profile
             </a>
         </li>
-        <li class="nav-item">
-            <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+        <div class="logout-container">
+            <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="nav-link btn btn-link" style="padding:0; border:none; background:none;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                <button type="submit" class="btn btn-logout">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
                 </button>
             </form>
-        </li>
+        </div>
     </ul>
 </div>
 @endsection
@@ -560,7 +570,7 @@
                     </div>
                     <h5 class="card-title">Manage Products</h5>
                     <p class="card-text">Add, edit, or remove products from your inventory.</p>
-                    <a href="{{ route('product management.index') }}" class="{{ request()->is('admin/product management') ? 'active' : '' }} btn btn-primary">
+                    <a href="{{ route('product_management.index') }}" class="{{ request()->is('admin/product_management') ? 'active' : '' }} btn btn-primary">
                         <i class="fas fa-arrow-right me-2"></i> Go to Products
                     </a>
                 </div>
@@ -574,7 +584,7 @@
                     </div>
                     <h5 class="card-title">Manage Users</h5>
                     <p class="card-text">View, add, edit, or remove system users and permissions.</p>
-                    <a href="{{ route('user management.index') }}" class="{{ request()->is('admin/user management') ? 'active' : '' }} btn btn-success">
+                    <a href="{{ route('user_management.index') }}" class="{{ request()->is('admin/user_management') ? 'active' : '' }} btn btn-success">
                         <i class="fas fa-arrow-right me-2"></i> Go to Users
                     </a>
                 </div>

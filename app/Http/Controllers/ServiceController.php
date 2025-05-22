@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Service; // ✅ make sure the model exists in app/Models
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class ServiceController extends Controller
 {
@@ -13,7 +14,7 @@ class ServiceController extends Controller
     public function index()
     {
         $services = Service::all();
-        return view('user.products.services.index', compact('services')); // ✅
+        return view('admin.services.index', compact('services'));
     }
 
     /**
@@ -21,7 +22,7 @@ class ServiceController extends Controller
      */
     public function create()
     {
-        return view('services.create'); // Optional if you have a separate create form
+        return view('admin.services.create');
     }
 
     /**
@@ -29,15 +30,16 @@ class ServiceController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'service_type' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
-            'price' => 'required|numeric',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0'
         ]);
 
-        Service::create($validated);
+        Service::create($request->all());
 
-        return redirect()->route('services.index')->with('success', 'Service added successfully!');
+        return redirect()->route('services.index')
+            ->with('success', 'Service added successfully.');
     }
 
     /**
@@ -46,7 +48,7 @@ class ServiceController extends Controller
     public function show(string $id)
     {
         $service = Service::findOrFail($id);
-        return view('services.show', compact('service'));
+        return view('admin.services.show', compact('service'));
     }
 
     /**
@@ -55,7 +57,7 @@ class ServiceController extends Controller
     public function edit(string $id)
     {
         $service = Service::findOrFail($id);
-        return view('services.edit', compact('service'));
+        return view('admin.services.edit', compact('service'));
     }
 
     /**
@@ -84,5 +86,39 @@ class ServiceController extends Controller
         $service->delete();
 
         return redirect()->route('services.index')->with('success', 'Service deleted successfully!');
+    }
+
+    public function addToCart(Service $service)
+    {
+        $cart = Session::get('cart', []);
+        
+        $cartItem = [
+            'id' => 'service_' . $service->service_id,
+            'type' => 'service',
+            'name' => $service->service_type,
+            'price' => $service->price,
+            'quantity' => 1,
+            'subtotal' => $service->price
+        ];
+
+        // Check if service already exists in cart
+        $exists = false;
+        foreach ($cart as $key => $item) {
+            if ($item['id'] === $cartItem['id']) {
+                $cart[$key]['quantity']++;
+                $cart[$key]['subtotal'] = $cart[$key]['quantity'] * $cart[$key]['price'];
+                $exists = true;
+                break;
+            }
+        }
+
+        if (!$exists) {
+            $cart[] = $cartItem;
+        }
+
+        Session::put('cart', $cart);
+
+        return redirect()->back()
+            ->with('success', 'Service added to cart successfully.');
     }
 }

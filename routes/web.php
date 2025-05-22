@@ -6,13 +6,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\UserProductController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\SalesController;
-use App\Http\Controllers\ServiceControllerController;
-use App\Http\Controllers\POSController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\POSController;
 use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -37,32 +35,6 @@ Route::get('/user/dashboard', function () {
 })->middleware('auth');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/dashboard', [UserController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/admin/user management', [UserController::class, 'index'])->name('user management.index');
-    Route::get('/admin/user management/create', [UserController::class, 'create'])->name('user management.create');
-    Route::post('/admin/user management', [UserController::class, 'store'])->name('user management.store');
-    Route::get('/admin/user management/{user}/edit', [UserController::class, 'edit'])->name('user management.edit');
-    Route::put('/admin/user management/{user}', [UserController::class, 'update'])->name('user management.update');
-    Route::delete('/admin/user management/{user}', [UserController::class, 'destroy'])->name('user management.destroy');
-
-    // Settings routes
-    Route::get('/admin/settings', [SettingsController::class, 'index'])->name('settings.index');
-    Route::put('/admin/settings', [SettingsController::class, 'update'])->name('settings.update');
-
-    Route::get('/admin/product management', [ProductController::class, 'index'])->name('product management.index');
-    Route::get('/admin/product management/create', [ProductController::class, 'create'])->name('product management.create');
-    Route::post('/admin/product management', [ProductController::class, 'store'])->name('product management.store');
-    Route::get('/admin/product management/{product}/edit', [ProductController::class, 'edit'])->name('product management.edit');
-    Route::put('/admin/product management/{product}', [ProductController::class, 'update'])->name('product management.update');
-    Route::delete('/admin/product management/{product}', [ProductController::class, 'destroy'])->name('product management.destroy');
-
-    Route::get('/admin/category_management', [CategoryController::class, 'index'])->name('category_management.index');
-    Route::get('/admin/category_management/create', [CategoryController::class, 'create'])->name('category_management.create');
-    Route::post('/admin/category_management', [CategoryController::class, 'store'])->name('category_management.store');
-    Route::get('/admin/category_management/{category}/edit', [CategoryController::class, 'edit'])->name('category_management.edit');
-    Route::put('/admin/category_management/{category}', [CategoryController::class, 'update'])->name('category_management.update');
-    Route::delete('/admin/category_management/{category}', [CategoryController::class, 'destroy'])->name('category_management.destroy');
-
     // POS routes
     Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
     Route::get('/pos/checkout', [POSController::class, 'checkout'])->name('pos.checkout');
@@ -71,25 +43,69 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pos/debug-sales', [POSController::class, 'debugSales'])->name('pos.debug-sales');
     Route::delete('/pos/sales/{id}', [POSController::class, 'destroySale'])->name('pos.sales.destroy');
     Route::get('/pos/sales-report', [POSController::class, 'salesReport'])->name('pos.sales-report');
-});
 
-Route::middleware(['auth'])->group(function () {
-    Route::resource('users', UserController::class);
-});
+    // Cart Routes
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+    Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+    Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 
-Route::resource('products', ProductController::class);
+    // Admin routes
+    Route::prefix('admin')->group(function () {
+        Route::get('/dashboard', [UserController::class, 'dashboard'])->name('admin.dashboard');
 
-Route::middleware(['auth'])->group(function () {
-    Route::resource('categories', CategoryController::class);
-});
+        // User Management
+        Route::get('/user_management', [UserController::class, 'index'])->name('user_management.index');
+        Route::get('/user_management/create', [UserController::class, 'create'])->name('user_management.create');
+        Route::post('/user_management', [UserController::class, 'store'])->name('user_management.store');
+        Route::get('/user_management/{user}/edit', [UserController::class, 'edit'])->name('user_management.edit');
+        Route::put('/user_management/{user}', [UserController::class, 'update'])->name('user_management.update');
+        Route::delete('/user_management/{user}', [UserController::class, 'destroy'])->name('user_management.destroy');
 
-Route::prefix('admin')->group(function () {
-    Route::resource('suppliers', SupplierController::class);
+        // Product Management
+        Route::get('/product_management', [ProductController::class, 'index'])->name('product_management.index');
+        Route::get('/product_management/create', [ProductController::class, 'create'])->name('product_management.create');
+        Route::post('/product_management', [ProductController::class, 'store'])->name('product_management.store');
+        Route::get('/product_management/{product}/edit', [ProductController::class, 'edit'])->name('product_management.edit');
+        Route::put('/product_management/{product}', [ProductController::class, 'update'])->name('product_management.update');
+        Route::delete('/product_management/{product}', [ProductController::class, 'destroy'])->name('product_management.destroy');
+
+        // Category Management
+        Route::get('/category_management', [CategoryController::class, 'index'])->name('category_management.index');
+        Route::get('/category_management/create', [CategoryController::class, 'create'])->name('category_management.create');
+        Route::post('/category_management', [CategoryController::class, 'store'])->name('category_management.store');
+        Route::get('/category_management/{category}/edit', [CategoryController::class, 'edit'])->name('category_management.edit');
+        Route::put('/category_management/{category}', [CategoryController::class, 'update'])->name('category_management.update');
+        Route::delete('/category_management/{category}', [CategoryController::class, 'destroy'])->name('category_management.destroy');
+
+        // Supplier Management
+        Route::get('/supplier_management', [SupplierController::class, 'index'])->name('supplier_management.index');
+        Route::get('/supplier_management/create', [SupplierController::class, 'create'])->name('supplier_management.create');
+        Route::post('/supplier_management', [SupplierController::class, 'store'])->name('supplier_management.store');
+        Route::get('/supplier_management/{supplier}/edit', [SupplierController::class, 'edit'])->name('supplier_management.edit');
+        Route::put('/supplier_management/{supplier}', [SupplierController::class, 'update'])->name('supplier_management.update');
+        Route::delete('/supplier_management/{supplier}', [SupplierController::class, 'destroy'])->name('supplier_management.destroy');
+
+        // Service Management
+        Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+        Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
+        Route::get('/services/create', [ServiceController::class, 'create'])->name('services.create');
+        Route::get('/services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit');
+        Route::put('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
+        Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
+
+        // Settings Management
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings_management.index');
+        Route::put('/settings', [SettingsController::class, 'update'])->name('settings_management.update');
+    });
 });
 
 // API routes for POS
 Route::prefix('api')->middleware(['auth'])->group(function () {
     Route::get('/products/{id}', [POSController::class, 'getProduct']);
+    Route::get('/services/{id}', [POSController::class, 'getService']);
     Route::post('/orders', [POSController::class, 'createOrder']);
 });
 
@@ -101,6 +117,3 @@ Route::get('/debug/tables', function() {
         'sale_items_exists' => Schema::hasTable('sale_items')
     ]);
 });
-
-Route::get('/user/services', [ServiceController::class, 'index'])->name('services.index');
-Route::post('/user/services', [ServiceController::class, 'store'])->name('services.store');

@@ -126,7 +126,7 @@
                         <h3 class="form-title">Add New Supplier</h3>
                         <p class="form-subtitle">Enter the supplier details to register a new vendor</p>
                     </div>
-                    <a href="{{ route('suppliers.index') }}" class="btn btn-back">
+                    <a href="{{ route('supplier_management.index') }}" class="btn btn-back">
                         <i class="fas fa-arrow-left"></i> Back to Suppliers
                     </a>
                 </div>
@@ -136,13 +136,13 @@
                     <div>Provide complete information for the new supplier</div>
                 </div>
 
-                <form action="{{ route('suppliers.store') }}" method="POST">
+                <form action="{{ route('supplier_management.store') }}" method="POST">
                     @csrf
 
                     @include('admin.supplier_management.form')
 
                     <div class="action-buttons">
-                        <a href="{{ route('suppliers.index') }}" class="btn btn-cancel">Cancel</a>
+                        <a href="{{ route('supplier_management.index') }}" class="btn btn-cancel">Cancel</a>
                         <button type="submit" class="btn btn-submit">
                             <i class="fas fa-check"></i> Save Supplier
                         </button>

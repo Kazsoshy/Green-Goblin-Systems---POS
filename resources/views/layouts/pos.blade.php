@@ -9,6 +9,8 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <!-- Include Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Include Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Hide scrollbar but keep functionality */
         .scrollbar-hide {
@@ -18,6 +20,23 @@
         .scrollbar-hide::-webkit-scrollbar {
             display: none;             /* Chrome, Safari and Opera */
         }
+
+        /* Custom styles */
+        .pos-content {
+            height: calc(100vh - 4rem);
+        }
+
+        .pos-sidebar {
+            width: 320px;
+        }
+
+        .pos-main {
+            width: calc(100% - 320px);
+        }
+
+        .cart-items-container {
+            height: calc(100vh - 20rem);
+        }
     </style>
     @stack('styles')
 </head>
@@ -26,29 +45,32 @@
     <div id="sidebar" class="fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white shadow-lg z-30 hidden">
         <div class="flex items-center justify-between p-4 border-b">
             <span class="text-lg font-bold text-blue-600">Menu</span>
+            <button onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         <ul class="p-4 space-y-4">
             <li>
                 <a href="{{ route('pos.index') }}" class="flex items-center text-gray-700 hover:text-blue-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                    <i class="fas fa-box w-5 mr-3"></i>
                     Products
                 </a>
             </li>
             <li>
+                <a href="{{ route('services.index') }}" class="flex items-center text-gray-700 hover:text-blue-600">
+                    <i class="fas fa-briefcase w-5 mr-3"></i>
+                    Services
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('pos.transactions') }}" class="flex items-center text-gray-700 hover:text-blue-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                    </svg>
+                    <i class="fas fa-history w-5 mr-3"></i>
                     Transaction History
                 </a>
             </li>
             <li>
-                <a href="#" class="flex items-center text-gray-700 hover:text-blue-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
+                <a href="{{ route('pos.sales-report') }}" class="flex items-center text-gray-700 hover:text-blue-600">
+                    <i class="fas fa-chart-bar w-5 mr-3"></i>
                     Sales Report
                 </a>
             </li>
@@ -56,36 +78,65 @@
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
                     <button type="submit" class="flex items-center w-full text-gray-700 hover:text-blue-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
+                        <i class="fas fa-sign-out-alt w-5 mr-3"></i>
                         Logout
                     </button>
                 </form>
             </li>
         </ul>
     </div>
+
     <!-- Overlay -->
     <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-30 z-20 hidden" onclick="toggleSidebar()"></div>
-    <div class="min-h-screen">
-        <!-- Include Header Partial -->
-        @include('partials.header')
 
-        <!-- Main Content -->
-        <div class="flex h-[calc(100vh-4rem)] mt-16">
-            <!-- Products Grid - Left Side -->
-            <div class="w-[70%] p-2 overflow-y-auto scrollbar-hide">
-                <div id="productsGrid" class="grid grid-cols-5 gap-2">
-                    @yield('products-grid')
+    <!-- Main Content -->
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-10 h-16">
+            <div class="flex items-center justify-between px-4 h-full">
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h1 class="text-xl font-bold text-gray-800">Green Goblin POS</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-600">
+                        <i class="fas fa-user mr-2"></i>
+                        {{ Auth::user()->name }}
+                    </span>
                 </div>
             </div>
+        </header>
 
-            <!-- Include Receipt Partial -->
-            @include('partials.receipt')
+        <!-- Main Content Area -->
+        <div class="flex pos-content mt-16">
+            <!-- Products/Services Grid - Left Side -->
+            <div class="pos-main overflow-y-auto scrollbar-hide bg-gray-50">
+                @yield('products-grid')
+            </div>
+
+            <!-- Receipt - Right Side -->
+            <div class="pos-sidebar bg-white border-l">
+                <div class="p-4 border-b bg-gray-50">
+                    <h2 class="text-lg font-bold text-gray-800">Current Order</h2>
+                </div>
+                
+                <!-- Cart Items -->
+                <div class="cart-items-container overflow-y-auto scrollbar-hide p-4">
+                    @yield('order-items')
+                </div>
+
+                <!-- Order Summary -->
+                <div class="border-t p-4">
+                    @yield('order-summary')
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Sidebar Toggle Script -->
+    <!-- Scripts -->
+    <script src="{{ asset('js/app.js') }}"></script>
     <script>
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
@@ -101,7 +152,6 @@
         }
     }
     </script>
-    <script src="{{ asset('js/app.js') }}"></script>
     @stack('scripts')
 </body>
 </html> 

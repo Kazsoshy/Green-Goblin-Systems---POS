@@ -32,7 +32,7 @@ class UserController extends Controller
 
         $users = $query->paginate(7);
 
-        return view('admin.user management.index', compact('users'));
+        return view('admin.user_management.index', compact('users'));
     }
 
     public function dashboard()
@@ -59,7 +59,7 @@ class UserController extends Controller
 
     public function create()
     {
-        return view('admin.user management.create');
+        return view('admin.user_management.create');
     }
 
     public function store(Request $request)
@@ -69,11 +69,11 @@ class UserController extends Controller
             'full_name' => 'required',
             'email' => 'required|email|unique:users',
             'phone' => 'nullable',
-            'password' => 'required|confirmed',
+            'password' => 'required|confirmed|min:6',
             'role' => 'required|in:user,admin'
         ]);
 
-        User::create([
+        $user = User::create([
             'username' => $request->username,
             'full_name' => $request->full_name,
             'email' => $request->email,
@@ -82,13 +82,14 @@ class UserController extends Controller
             'role' => $request->role,
         ]);
 
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+        return redirect()->route('user_management.index')
+            ->with('success', 'User created successfully.');
     }
 
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        return view('admin.user management.edit', compact('user'));
+        return view('admin.user_management.edit', compact('user'));
     }
 
     public function update(Request $request, $id)
@@ -111,12 +112,16 @@ class UserController extends Controller
             'role' => $request->role,
         ]);
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        return redirect()->route('user_management.index')
+            ->with('success', 'User updated successfully.');
     }
 
     public function destroy($id)
     {
-        User::destroy($id);
-        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        $user = User::findOrFail($id);
+        $user->delete();
+        
+        return redirect()->route('user_management.index')
+            ->with('success', 'User deleted successfully.');
     }
 }

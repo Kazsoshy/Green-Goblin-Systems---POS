@@ -12,47 +12,45 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-    $query = Product::with(['category', 'supplier']);
+        $query = Product::with(['category', 'supplier']);
 
-    // Search Filter
-    if ($request->has('search') && $request->search != '') {
-        $query->where('name', 'like', '%' . $request->search . '%');
-    }
-
-    // Category Filter
-    if ($request->has('category') && $request->category != '') {
-        $query->whereHas('category', function ($q) use ($request) {
-            $q->where('name', $request->category);
-        });
-    }
-
-    // Stock Filter
-    if ($request->has('stock') && $request->stock != '') {
-        switch ($request->stock) {
-            case 'in':
-                $query->where('stock_quantity', '>', 10);
-                break;
-            case 'low':
-                $query->where('stock_quantity', '>', 0)->where('stock_quantity', '<=', 10);
-                break;
-            case 'out':
-                $query->where('stock_quantity', '=', 0);
-                break;
+        // Search Filter
+        if ($request->has('search') && $request->search != '') {
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
-    }
 
-    $products = $query->paginate(7);
-    $categories = Category::all(); // fetch for dropdown
-    return view('admin.product management.index', compact('products', 'categories'));
+        // Category Filter
+        if ($request->has('category') && $request->category != '') {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('name', $request->category);
+            });
+        }
+
+        // Stock Filter
+        if ($request->has('stock') && $request->stock != '') {
+            switch ($request->stock) {
+                case 'in':
+                    $query->where('stock_quantity', '>', 10);
+                    break;
+                case 'low':
+                    $query->where('stock_quantity', '>', 0)->where('stock_quantity', '<=', 10);
+                    break;
+                case 'out':
+                    $query->where('stock_quantity', '=', 0);
+                    break;
+            }
+        }
+
+        $products = $query->paginate(7);
+        $categories = Category::all(); // fetch for dropdown
+        return view('admin.product_management.index', compact('products', 'categories'));
     }
 
     public function create()
     {
         $categories = Category::all();
         $suppliers = Supplier::all();
-
-        return view('admin.product management.create', compact('categories', 'suppliers'));
-        
+        return view('admin.product_management.create', compact('categories', 'suppliers'));
     }
 
     public function store(Request $request)
@@ -79,15 +77,14 @@ class ProductController extends Controller
     
         Product::create($data);
     
-        return redirect()->route('products.index')->with('success', 'Product added successfully.');
+        return redirect()->route('product_management.index')->with('success', 'Product added successfully.');
     }
 
     public function edit(Product $product)
     {
         $categories = Category::all();
         $suppliers = Supplier::all();
-    
-        return view('admin.product management.edit', compact('product', 'categories', 'suppliers'));
+        return view('admin.product_management.edit', compact('product', 'categories', 'suppliers'));
     }
     
     public function update(Request $request, Product $product)
@@ -119,19 +116,22 @@ class ProductController extends Controller
     
         $product->update($data);
     
-        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+        return redirect()->route('product_management.index')->with('success', 'Product updated successfully.');
     }
 
     public function destroy(Product $product)
     {
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+        
         $product->delete();
-
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+        return redirect()->route('product_management.index')->with('success', 'Product deleted successfully.');
     }
 
     public function show(Product $product)
     {
         $product->load(['category', 'supplier']);
-        return view('admin.product management.show', compact('product'));
+        return view('admin.product_management.show', compact('product'));
     }
 }

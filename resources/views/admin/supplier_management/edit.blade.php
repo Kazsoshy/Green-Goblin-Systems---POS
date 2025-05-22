@@ -126,7 +126,7 @@
                         <h3 class="form-title">Edit Supplier</h3>
                         <p class="form-subtitle">Update the information for this supplier</p>
                     </div>
-                    <a href="{{ route('suppliers.index') }}" class="btn btn-back">
+                    <a href="{{ route('supplier_management.index') }}" class="btn btn-back">
                         <i class="fas fa-arrow-left"></i> Back to Suppliers
                     </a>
                 </div>
@@ -136,14 +136,14 @@
                     <div>Edit supplier details below</div>
                 </div>
 
-                <form action="{{ route('suppliers.update', $supplier->id) }}" method="POST">
+                <form action="{{ route('supplier_management.update', $supplier->id) }}" method="POST">
                     @csrf
                     @method('PUT')
 
                     @include('admin.supplier_management.form')
 
                     <div class="action-buttons">
-                        <a href="{{ route('suppliers.index') }}" class="btn btn-cancel">Cancel</a>
+                        <a href="{{ route('supplier_management.index') }}" class="btn btn-cancel">Cancel</a>
                         <button type="submit" class="btn btn-submit">
                             <i class="fas fa-save"></i> Update Supplier
                         </button>

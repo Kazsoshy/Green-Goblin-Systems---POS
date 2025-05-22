@@ -121,7 +121,7 @@
     @endif
 
     <div class="settings-card">
-        <form action="{{ route('settings.update') }}" method="POST">
+        <form action="{{ route('settings_management.update') }}" method="POST">
             @csrf
             @method('PUT')
 
@@ -200,8 +200,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     colorOptions.forEach(option => {
         option.addEventListener('click', function() {
+            // Remove active class from all options
             colorOptions.forEach(opt => opt.classList.remove('active'));
+            // Add active class to clicked option
             this.classList.add('active');
+            // Update hidden input value
             themeColorInput.value = this.dataset.color;
         });
     });

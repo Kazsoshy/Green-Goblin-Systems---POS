@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // POS API Routes - Using auth middleware instead of sanctum to match web auth
 Route::middleware('auth')->group(function () {
     Route::get('/products/{id}', [POSController::class, 'getProduct']);
+    Route::get('/services/{id}', [POSController::class, 'getService']);
     Route::post('/orders', [POSController::class, 'createOrder']);
     Route::post('/checkout', [POSController::class, 'processCheckout']);
 }); 

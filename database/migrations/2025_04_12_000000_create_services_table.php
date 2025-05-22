@@ -8,17 +8,17 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('total_amount', 10, 2);
-            $table->string('status');
+        Schema::create('services', function (Blueprint $table) {
+            $table->id('service_id');
+            $table->string('service_type');
+            $table->string('description');
+            $table->decimal('price', 10, 2);
             $table->timestamps();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('services');
     }
 }; 

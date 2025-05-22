@@ -16,6 +16,8 @@
             --text-dark: #333;
             --text-muted: #6C757D;
             --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --danger-red: #dc3545;
+            --danger-dark: #bb2d3b;
         }
         
         body {
@@ -37,6 +39,8 @@
             padding-top: 20px;
             box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
             z-index: 1000;
+            display: flex;
+            flex-direction: column;
         }
         
         .sidebar .px-3 {
@@ -75,6 +79,36 @@
             margin-right: 12px;
             width: 20px;
             text-align: center;
+        }
+
+        /* Sidebar Navigation Container */
+        .sidebar-nav {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        
+        /* Logout Button Container */
+        .logout-container {
+            padding: 20px;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-logout {
+            background-color: var(--danger-red);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: left;
+            border: none;
+        }
+        
+        .btn-logout:hover {
+            background-color: var(--danger-dark);
+            color: white;
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
         }
         
         /* Main Content Styles */
@@ -126,19 +160,6 @@
             font-size: 0.65rem;
         }
         
-        .btn-logout {
-            background-color: var(--primary-purple);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-logout:hover {
-            background-color: var(--dark-purple);
-            color: white;
-            box-shadow: 0 4px 8px rgba(94, 53, 177, 0.3);
-        }
         .goblin-logo {
             width: 100px;
             display: block;
@@ -197,90 +218,111 @@
     <!-- Sidebar Implementation -->
     <div class="sidebar">
         <div class="px-3 mb-4">
-        <img src="{{ asset('./logopartial.jpg') }}" alt="Goblin Icon" class="goblin-logo">
+            <img src="{{ asset('./logopartial.jpg') }}" alt="Goblin Icon" class="goblin-logo">
         </div>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('admin/dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('admin/product management') ? 'active' : '' }}" href="{{ route('product management.index') }}">
-                    <i class="fas fa-box"></i> Products
-                </a>
-            </li>
-            <!-- Dropdown for Categories -->
-            <li class="nav-item">
-                <a class="nav-link dropdown-toggle" href="#categoriesSubmenu" data-bs-toggle="collapse" aria-expanded="false">
-                    <i class="fas fa-tags"></i> Categories
-                </a>
-                <ul class="collapse list-unstyled ms-4" id="categoriesSubmenu">
-                    <li>
-                        <a class="nav-link {{ request()->is('admin/categories') ? 'active' : '' }}" href="{{ route('categories.index') }}">
-                            <i class="fas fa-list"></i> View All
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-link {{ request()->is('admin/categories/create') ? 'active' : '' }}" href="{{ route('categories.create') }}">
-                            <i class="fas fa-plus"></i> Add New
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <!-- Dropdown for Suppliers -->
-            <li class="nav-item">
-                <a class="nav-link dropdown-toggle" href="#suppliersSubmenu" data-bs-toggle="collapse" aria-expanded="false">
-                    <i class="fas fa-truck"></i> Suppliers
-                </a>
-                <ul class="collapse list-unstyled ms-4" id="suppliersSubmenu">
-                    <li>
-                        <a class="nav-link {{ request()->is('admin/suppliers') ? 'active' : '' }}" href="{{ route('suppliers.index') }}">
-                            <i class="fas fa-list"></i> View All
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-link {{ request()->is('admin/suppliers/create') ? 'active' : '' }}" href="{{ route('suppliers.create') }}">
-                            <i class="fas fa-plus"></i> Add New
-                        </a>
-                    </li>
-                </ul>
-            </li>
-           <!-- <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-shopping-cart"></i> Orders
-                </a>
-            </li>-->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('admin/user management') ? 'active' : '' }}" href="{{ route('user management.index') }}">
-                    <i class="fas fa-users"></i> Users
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('settings.index') }}">
-                    <i class="fas fa-cog"></i> Settings
-                </a>
-            </li>
-            <!--<li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-chart-bar"></i> Reports
-                </a>
-            </li>
+        
+        <!-- Navigation Container -->
+        <div class="sidebar-nav">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('admin/dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <!-- Product Management -->
+                <li class="nav-item">
+                    <a class="nav-link dropdown-toggle" href="#productsSubmenu" data-bs-toggle="collapse" aria-expanded="false">
+                        <i class="fas fa-box"></i> Products
+                    </a>
+                    <ul class="collapse list-unstyled ms-4" id="productsSubmenu">
+                        <li>
+                            <a class="nav-link {{ request()->is('admin/product_management') ? 'active' : '' }}" href="{{ route('product_management.index') }}">
+                                <i class="fas fa-list"></i> View All
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link {{ request()->is('admin/product_management/create') ? 'active' : '' }}" href="{{ route('product_management.create') }}">
+                                <i class="fas fa-plus"></i> Add New
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Categories -->
+                <li class="nav-item">
+                    <a class="nav-link dropdown-toggle" href="#categoriesSubmenu" data-bs-toggle="collapse" aria-expanded="false">
+                        <i class="fas fa-tags"></i> Categories
+                    </a>
+                    <ul class="collapse list-unstyled ms-4" id="categoriesSubmenu">
+                        <li>
+                            <a class="nav-link {{ request()->is('admin/category_management') ? 'active' : '' }}" href="{{ route('category_management.index') }}">
+                                <i class="fas fa-list"></i> View All
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link {{ request()->is('admin/category_management/create') ? 'active' : '' }}" href="{{ route('category_management.create') }}">
+                                <i class="fas fa-plus"></i> Add New
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Suppliers -->
+                <li class="nav-item">
+                    <a class="nav-link dropdown-toggle" href="#suppliersSubmenu" data-bs-toggle="collapse" aria-expanded="false">
+                        <i class="fas fa-truck"></i> Suppliers
+                    </a>
+                    <ul class="collapse list-unstyled ms-4" id="suppliersSubmenu">
+                        <li>
+                            <a class="nav-link {{ request()->is('admin/supplier_management') ? 'active' : '' }}" href="{{ route('supplier_management.index') }}">
+                                <i class="fas fa-list"></i> View All
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link {{ request()->is('admin/supplier_management/create') ? 'active' : '' }}" href="{{ route('supplier_management.create') }}">
+                                <i class="fas fa-plus"></i> Add New
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Services -->
+                <li class="nav-item">
+                    <a class="nav-link dropdown-toggle" href="#servicesSubmenu" data-bs-toggle="collapse" aria-expanded="false">
+                        <i class="fas fa-wrench"></i> Services
+                    </a>
+                    <ul class="collapse list-unstyled ms-4" id="servicesSubmenu">
+                        <li>
+                            <a class="nav-link {{ request()->is('admin/services') ? 'active' : '' }}" href="{{ route('services.index') }}">
+                                <i class="fas fa-list"></i> View All
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link {{ request()->is('admin/services/create') ? 'active' : '' }}" href="{{ route('services.create') }}">
+                                <i class="fas fa-plus"></i> Add New
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('admin/user_management') ? 'active' : '' }}" href="{{ route('user_management.index') }}">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('admin/settings') ? 'active' : '' }}" href="{{ route('settings_management.index') }}">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </li>
+            </ul>
+        </div>
 
-            <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-user"></i> Profile
-                </a>
-            </li> -->
-            <li class="nav-item">
-                <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-logout">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </button>
-                </form>
-            </li>
-        </ul>
+        <!-- Logout Container -->
+        <div class="logout-container">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="btn btn-logout">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </button>
+            </form>
+        </div>
     </div>
     
     <div class="main-content">
@@ -299,12 +341,6 @@
                             <li><a class="dropdown-item" href="#">Payment confirmed</a></li>
                         </ul>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-logout">
-                            <i class="fas fa-sign-out-alt me-2"></i>Logout
-                        </button>
-                    </form>
                 </div>
             </div>
         </nav>
