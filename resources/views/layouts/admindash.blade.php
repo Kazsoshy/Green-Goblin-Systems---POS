@@ -314,7 +314,7 @@
             </ul>
         </div>
 
-        <!-- Logout Container -->
+        
         <div class="logout-container">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf

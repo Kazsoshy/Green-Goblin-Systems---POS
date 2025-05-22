@@ -205,6 +205,73 @@
             </div>
         @endif
 
+        <div class="row mb-4">
+            <form id="filterForm" class="row g-3" action="{{ route('user_management.index') }}" method="GET">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control" 
+                               id="searchInput" 
+                               name="search" 
+                               placeholder="Search by username, full name or email..."
+                               value="{{ request('search') }}"
+                               autocomplete="off">
+                        @if(request('search'))
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <select class="form-select" id="roleFilter" name="role">
+                        <option value="">All Roles</option>
+                        <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="cashier" {{ request('role') == 'cashier' ? 'selected' : '' }}>Cashier</option>
+                        <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>User</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="dateFilter" name="date_range">
+                        <option value="">All Time</option>
+                        <option value="today" {{ request('date_range') == 'today' ? 'selected' : '' }}>Today</option>
+                        <option value="week" {{ request('date_range') == 'week' ? 'selected' : '' }}>This Week</option>
+                        <option value="month" {{ request('date_range') == 'month' ? 'selected' : '' }}>This Month</option>
+                        <option value="year" {{ request('date_range') == 'year' ? 'selected' : '' }}>This Year</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        @if(request()->anyFilled(['search', 'role', 'date_range']))
+            <div class="mb-3">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <span class="me-2">Active Filters:</span>
+                    @if(request('search'))
+                        <span class="badge bg-info me-2">
+                            Search: {{ request('search') }}
+                        </span>
+                    @endif
+                    @if(request('role'))
+                        <span class="badge bg-info me-2">
+                            Role: {{ ucfirst(request('role')) }}
+                        </span>
+                    @endif
+                    @if(request('date_range'))
+                        <span class="badge bg-info me-2">
+                            Date: {{ ucfirst(request('date_range')) }}
+                        </span>
+                    @endif
+                    <a href="{{ route('user_management.index') }}" class="btn btn-sm btn-outline-secondary">
+                        Clear All Filters
+                    </a>
+                </div>
+            </div>
+        @endif
+
         <div class="table-container">
             <div class="table-responsive">
                 <table class="table">
@@ -268,4 +335,45 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('filterForm');
+    const searchInput = document.getElementById('searchInput');
+    const roleFilter = document.getElementById('roleFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    let typingTimer;
+
+    // Function to submit the form
+    const submitForm = () => {
+        form.submit();
+    };
+
+    // Function to clear search
+    window.clearSearch = () => {
+        searchInput.value = '';
+        submitForm();
+    };
+
+    // Handle search input with debounce
+    searchInput.addEventListener('input', function() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(submitForm, 500); // Wait 500ms after user stops typing
+    });
+
+    // Handle filter changes
+    roleFilter.addEventListener('change', submitForm);
+    dateFilter.addEventListener('change', submitForm);
+
+    // Auto-hide alert after 5 seconds
+    setTimeout(function() {
+        const alert = document.querySelector('.alert-success');
+        if (alert) {
+            alert.style.display = 'none';
+        }
+    }, 5000);
+});
+</script>
 @endsection 

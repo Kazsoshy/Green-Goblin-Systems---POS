@@ -257,11 +257,74 @@
             </div>
         @endif
 
+        <div class="row mb-4">
+            <form id="filterForm" class="row g-3" action="{{ route('category_management.index') }}" method="GET">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control" 
+                               id="searchInput" 
+                               name="search" 
+                               placeholder="Search categories..."
+                               value="{{ request('search') }}"
+                               autocomplete="off">
+                        @if(request('search'))
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-md-end">
+                        <select class="form-select" id="parentFilter" name="parent" style="width: auto;">
+                            <option value="">All Categories</option>
+                            <option value="none" {{ request('parent') == 'none' ? 'selected' : '' }}>Main Categories</option>
+                            @foreach($parentCategories as $parent)
+                                <option value="{{ $parent->id }}" {{ request('parent') == $parent->id ? 'selected' : '' }}>
+                                    Sub-categories of {{ $parent->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        @if(request()->anyFilled(['search', 'parent']))
+            <div class="mb-3">
+                <div class="d-flex align-items-center">
+                    <span class="me-2">Active Filters:</span>
+                    @if(request('search'))
+                        <span class="badge bg-info me-2">
+                            Search: {{ request('search') }}
+                        </span>
+                    @endif
+                    @if(request('parent'))
+                        <span class="badge bg-info me-2">
+                            @if(request('parent') === 'none')
+                                Type: Main Categories
+                            @else
+                                Parent: {{ $parentCategories->find(request('parent'))?->name }}
+                            @endif
+                        </span>
+                    @endif
+                    <a href="{{ route('category_management.index') }}" class="btn btn-sm btn-outline-secondary">
+                        Clear All Filters
+                    </a>
+                </div>
+            </div>
+        @endif
+
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead>
                     <tr>
-                        <th width="70%">Category Name</th>
+                        <th width="40%">Category Name</th>
+                        <th width="30%">Parent Category</th>
                         <th width="30%">Actions</th>
                     </tr>
                 </thead>
@@ -275,6 +338,15 @@
                                     </svg>
                                     {{ $category->name }}
                                 </div>
+                            </td>
+                            <td>
+                                @if($category->parent)
+                                    <span class="badge bg-light text-dark">
+                                        {{ $category->parent->name }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary">Main Category</span>
+                                @endif
                             </td>
                             <td>
                                 <div class="action-buttons">
@@ -327,6 +399,32 @@
 
 @section('scripts')
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('filterForm');
+    const searchInput = document.getElementById('searchInput');
+    const parentFilter = document.getElementById('parentFilter');
+    let typingTimer;
+
+    // Function to submit the form
+    const submitForm = () => {
+        form.submit();
+    };
+
+    // Function to clear search
+    window.clearSearch = () => {
+        searchInput.value = '';
+        submitForm();
+    };
+
+    // Handle search input with debounce
+    searchInput.addEventListener('input', function() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(submitForm, 500); // Wait 500ms after user stops typing
+    });
+
+    // Handle parent category filter change
+    parentFilter.addEventListener('change', submitForm);
+
     // Auto-hide alert after 8 seconds
     setTimeout(function() {
         const alert = document.querySelector('.alert-success');
@@ -334,5 +432,6 @@
             alert.style.display = 'none';
         }
     }, 8000);
+});
 </script>
 @endsection

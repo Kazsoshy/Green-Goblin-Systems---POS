@@ -7,11 +7,28 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::with('parent')->get();
-        $categories = Category::paginate(7);
-        return view('admin.category_management.index', compact('categories'));
+        $query = Category::query();
+
+        // Search Filter
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Parent Category Filter
+        if ($request->filled('parent')) {
+            if ($request->parent === 'none') {
+                $query->whereNull('parent_category_id');
+            } else {
+                $query->where('parent_category_id', $request->parent);
+            }
+        }
+
+        $categories = $query->latest()->paginate(10)->withQueryString();
+        $parentCategories = Category::whereNull('parent_category_id')->get();
+        
+        return view('admin.category_management.index', compact('categories', 'parentCategories'));
     }
 
     public function create()

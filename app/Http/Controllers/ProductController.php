@@ -15,34 +15,37 @@ class ProductController extends Controller
         $query = Product::with(['category', 'supplier']);
 
         // Search Filter
-        if ($request->has('search') && $request->search != '') {
-            $query->where('name', 'like', '%' . $request->search . '%');
-        }
-
-        // Category Filter
-        if ($request->has('category') && $request->category != '') {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('name', $request->category);
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%')
+                  ->orWhere('barcode', 'like', '%' . $request->search . '%');
             });
         }
 
+        // Category Filter
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
         // Stock Filter
-        if ($request->has('stock') && $request->stock != '') {
+        if ($request->filled('stock')) {
             switch ($request->stock) {
                 case 'in':
                     $query->where('stock_quantity', '>', 10);
                     break;
                 case 'low':
-                    $query->where('stock_quantity', '>', 0)->where('stock_quantity', '<=', 10);
+                    $query->whereBetween('stock_quantity', [1, 10]);
                     break;
                 case 'out':
-                    $query->where('stock_quantity', '=', 0);
+                    $query->where('stock_quantity', '<=', 0);
                     break;
             }
         }
 
-        $products = $query->paginate(7);
-        $categories = Category::all(); // fetch for dropdown
+        $products = $query->latest()->paginate(10)->withQueryString();
+        $categories = Category::all();
+        
         return view('admin.product_management.index', compact('products', 'categories'));
     }
 

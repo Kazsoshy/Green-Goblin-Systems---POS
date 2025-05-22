@@ -191,29 +191,78 @@
         @endif
 
         <div class="row mb-4">
-            <div class="col-md-4">
-                <input type="text" class="form-control" placeholder="Search products...">
-            </div>
-            <div class="col-md-3">
-                <select class="form-select" id="categoryFilter">
-                    <option value="">All Categories</option>
-                    @foreach($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select class="form-select" id="stockFilter">
-                    <option value="">All Stock Status</option>
-                    <option value="in">In Stock</option>
-                    <option value="low">Low Stock</option>
-                    <option value="out">Out of Stock</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button class="btn btn-primary w-100">Filter</button>
-            </div>
+            <form id="filterForm" class="row g-3" action="{{ route('product_management.index') }}" method="GET">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control" 
+                               id="searchInput" 
+                               name="search" 
+                               placeholder="Search by name, description, or barcode..."
+                               value="{{ request('search') }}"
+                               autocomplete="off">
+                        @if(request('search'))
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="categoryFilter" name="category">
+                        <option value="">All Categories</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="stockFilter" name="stock">
+                        <option value="">All Stock Status</option>
+                        <option value="in" {{ request('stock') == 'in' ? 'selected' : '' }}>In Stock (>10)</option>
+                        <option value="low" {{ request('stock') == 'low' ? 'selected' : '' }}>Low Stock (1-10)</option>
+                        <option value="out" {{ request('stock') == 'out' ? 'selected' : '' }}>Out of Stock</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100" id="filterButton">
+                        <i class="fas fa-filter me-1"></i> Filter
+                        <span class="spinner-border spinner-border-sm d-none" role="status" id="filterSpinner"></span>
+                    </button>
+                </div>
+            </form>
         </div>
+
+        @if(request()->anyFilled(['search', 'category', 'stock']))
+            <div class="mb-3">
+                <div class="d-flex align-items-center">
+                    <span class="me-2">Active Filters:</span>
+                    @if(request('search'))
+                        <span class="badge bg-info me-2">
+                            Search: {{ request('search') }}
+                        </span>
+                    @endif
+                    @if(request('category'))
+                        <span class="badge bg-info me-2">
+                            Category: {{ $categories->find(request('category'))->name }}
+                        </span>
+                    @endif
+                    @if(request('stock'))
+                        <span class="badge bg-info me-2">
+                            Stock: {{ ucfirst(request('stock')) }}
+                        </span>
+                    @endif
+                    <a href="{{ route('product_management.index') }}" class="btn btn-sm btn-outline-secondary">
+                        Clear All Filters
+                    </a>
+                </div>
+            </div>
+        @endif
 
         <div class="table-responsive">
             <table class="table">
@@ -276,4 +325,53 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('filterForm');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const stockFilter = document.getElementById('stockFilter');
+    const filterButton = document.getElementById('filterButton');
+    const filterSpinner = document.getElementById('filterSpinner');
+    let typingTimer;
+
+    // Function to show loading state
+    const showLoading = () => {
+        filterButton.disabled = true;
+        filterSpinner.classList.remove('d-none');
+    };
+
+    // Function to submit the form
+    const submitForm = () => {
+        showLoading();
+        form.submit();
+    };
+
+    // Function to clear search
+    window.clearSearch = () => {
+        searchInput.value = '';
+        submitForm();
+    };
+
+    // Handle search input with debounce
+    searchInput.addEventListener('input', function() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(submitForm, 500);
+    });
+
+    // Handle select changes
+    categoryFilter.addEventListener('change', submitForm);
+    stockFilter.addEventListener('change', submitForm);
+
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        showLoading();
+        this.submit();
+    });
+});
+</script>
 @endsection 

@@ -270,31 +270,58 @@
         @endif
 
         <div class="row mb-4">
-            <div class="col-md-6 mb-3 mb-md-0">
-                <div class="input-group">
-                    <input type="text" class="form-control search-input" placeholder="Search suppliers...">
-                    <button class="btn btn-primary" type="button">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="d-flex justify-content-md-end">
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="statusFilter" data-bs-toggle="dropdown" aria-expanded="false">
-                            Status
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="statusFilter">
-                            <li><a class="dropdown-item" href="#">All</a></li>
-                            <li><a class="dropdown-item" href="#">Active</a></li>
-                            <li><a class="dropdown-item" href="#">Inactive</a></li>
-                        </ul>
+            <form id="filterForm" class="row g-3" action="{{ route('supplier_management.index') }}" method="GET">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control search-input" 
+                               id="searchInput" 
+                               name="search" 
+                               placeholder="Search by name, contact, email, phone or address..."
+                               value="{{ request('search') }}"
+                               autocomplete="off">
+                        @if(request('search'))
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        @endif
                     </div>
                 </div>
-            </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-md-end">
+                        <select class="form-select" id="statusFilter" name="status" style="width: auto;">
+                            <option value="">All Status</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
         </div>
+
+        @if(request()->anyFilled(['search', 'status']))
+            <div class="mb-3">
+                <div class="d-flex align-items-center">
+                    <span class="me-2">Active Filters:</span>
+                    @if(request('search'))
+                        <span class="badge bg-info me-2">
+                            Search: {{ request('search') }}
+                        </span>
+                    @endif
+                    @if(request('status'))
+                        <span class="badge bg-info me-2">
+                            Status: {{ ucfirst(request('status')) }}
+                        </span>
+                    @endif
+                    <a href="{{ route('supplier_management.index') }}" class="btn btn-sm btn-outline-secondary">
+                        Clear All Filters
+                    </a>
+                </div>
+            </div>
+        @endif
 
         <div class="table-responsive">
             <table class="table table-hover align-middle">
@@ -317,7 +344,11 @@
                             <td>{{ $supplier->email }}</td>
                             <td>{{ $supplier->phone }}</td>
                             <td class="text-start">{{ $supplier->address }}</td>
-                            <td><span class="status-active">Active</span></td>
+                            <td>
+                                <span class="status-{{ $supplier->status ?? 'active' }}">
+                                    {{ ucfirst($supplier->status ?? 'active') }}
+                                </span>
+                            </td>
                             <td>
                                 <div class="action-buttons">
                                     <a href="{{ route('supplier_management.edit', $supplier->id) }}" class="btn btn-sm btn-warning" title="Edit">
@@ -363,4 +394,35 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('filterForm');
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    let typingTimer;
+
+    // Function to submit the form
+    const submitForm = () => {
+        form.submit();
+    };
+
+    // Function to clear search
+    window.clearSearch = () => {
+        searchInput.value = '';
+        submitForm();
+    };
+
+    // Handle search input with debounce
+    searchInput.addEventListener('input', function() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(submitForm, 500); // Wait 500ms after user stops typing
+    });
+
+    // Handle status filter change
+    statusFilter.addEventListener('change', submitForm);
+});
+</script>
 @endsection
