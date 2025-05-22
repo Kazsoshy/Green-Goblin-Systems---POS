@@ -14,6 +14,8 @@ use App\Http\Controllers\ServiceControllerController;
 use App\Http\Controllers\POSController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SettingController;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 // Redirect root to login
 Route::redirect('/', '/login');
@@ -60,6 +62,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/category_management/{category}/edit', [CategoryController::class, 'edit'])->name('category_management.edit');
     Route::put('/admin/category_management/{category}', [CategoryController::class, 'update'])->name('category_management.update');
     Route::delete('/admin/category_management/{category}', [CategoryController::class, 'destroy'])->name('category_management.destroy');
+
+    // POS routes
+    Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
+    Route::get('/pos/checkout', [POSController::class, 'checkout'])->name('pos.checkout');
+    Route::post('/pos/checkout', [POSController::class, 'processCheckout'])->name('pos.process-checkout');
+    Route::get('/pos/transactions', [POSController::class, 'transactions'])->name('pos.transactions');
+    Route::get('/pos/debug-sales', [POSController::class, 'debugSales'])->name('pos.debug-sales');
+    Route::delete('/pos/sales/{id}', [POSController::class, 'destroySale'])->name('pos.sales.destroy');
+    Route::get('/pos/sales-report', [POSController::class, 'salesReport'])->name('pos.sales-report');
 });
 
 Route::middleware(['auth'])->group(function () {
@@ -76,17 +87,19 @@ Route::prefix('admin')->group(function () {
     Route::resource('suppliers', SupplierController::class);
 });
 
-// POS routes (move these up for clarity)
-Route::middleware(['auth'])->group(function () {
-    // Make POS the default route after login for non-admin users
-    Route::redirect('/user/dashboard', '/pos');
-    Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
-});
-
 // API routes for POS
 Route::prefix('api')->middleware(['auth'])->group(function () {
     Route::get('/products/{id}', [POSController::class, 'getProduct']);
     Route::post('/orders', [POSController::class, 'createOrder']);
+});
+
+// Debug route
+Route::get('/debug/tables', function() {
+    return response()->json([
+        'tables' => DB::select('SHOW TABLES'),
+        'sales_exists' => Schema::hasTable('sales'),
+        'sale_items_exists' => Schema::hasTable('sale_items')
+    ]);
 });
 
 Route::get('/user/services', [ServiceController::class, 'index'])->name('services.index');

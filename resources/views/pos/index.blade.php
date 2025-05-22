@@ -49,9 +49,9 @@
             <span>Total</span>
             <span id="total">₱0.00</span>
         </div>
-        <button onclick="processOrder()" 
+        <button onclick="proceedToCheckout()" 
                 class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-            Process Payment
+            Proceed to Checkout
         </button>
     </div>
 @endsection
@@ -167,33 +167,17 @@ function updateTotals() {
     document.getElementById('total').textContent = `₱${total.toFixed(2)}`;
 }
 
-function processOrder() {
+function proceedToCheckout() {
     if (cart.length === 0) {
         alert('Please add items to cart first');
         return;
     }
     
-    fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({
-            items: cart,
-            total: parseFloat(document.getElementById('total').textContent.substring(1))
-        })
-    })
-    .then(response => response.json())
-    .then(order => {
-        alert('Order processed successfully!');
-        cart = [];
-        updateCartDisplay();
-    })
-    .catch(error => {
-        alert('Error processing order. Please try again.');
-        console.error('Error:', error);
-    });
+    // Save cart to sessionStorage
+    sessionStorage.setItem('cart', JSON.stringify(cart));
+    
+    // Redirect to checkout page
+    window.location.href = "{{ route('pos.checkout') }}";
 }
 </script>
 @endpush 

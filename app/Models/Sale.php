@@ -19,6 +19,7 @@ class Sale extends Model
         'customer_phone',
         'customer_email',
         'customer_address',
+        'special_note',
         'notes'
     ];
 
@@ -28,6 +29,11 @@ class Sale extends Model
     ];
 
     public function items(): HasMany
+    {
+        return $this->hasMany(SaleItem::class);
+    }
+
+    public function saleItems(): HasMany
     {
         return $this->hasMany(SaleItem::class);
     }
