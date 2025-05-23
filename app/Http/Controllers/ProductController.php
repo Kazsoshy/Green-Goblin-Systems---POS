@@ -124,12 +124,21 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+        try {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            
+            $product->delete();
+            return redirect()->route('product_management.index')->with('success', 'Product deleted successfully.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) { // Foreign key constraint violation code
+                return redirect()->route('product_management.index')
+                    ->with('error', 'This product cannot be deleted because it is associated with sales records. To maintain sales history, products that have been sold cannot be removed.');
+            }
+            return redirect()->route('product_management.index')
+                ->with('error', 'An error occurred while deleting the product.');
         }
-        
-        $product->delete();
-        return redirect()->route('product_management.index')->with('success', 'Product deleted successfully.');
     }
 
     public function show(Product $product)
